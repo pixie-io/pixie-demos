@@ -1,4 +1,9 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: px-sock-shop
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -76,14 +81,13 @@ spec:
       containers:
       - name: carts
         image: weaveworksdemos/carts:0.4.8
+        ports:
+         - containerPort: 80
         env:
          - name: ZIPKIN
            value: zipkin.jaeger.svc.cluster.local
          - name: JAVA_OPTS
-           value: >
-             -Xms64m -Xmx128m -XX:PermSize=32m
-             -XX:MaxPermSize=64m -XX:+UseG1GC
-             -Djava.security.egd=file:/dev/urandom
+           value: -Xms64m -Xmx128m -XX:PermSize=32m -XX:MaxPermSize=64m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom
         resources:
           limits:
             cpu: 300m
@@ -91,8 +95,6 @@ spec:
           requests:
             cpu: 300m
             memory: 500Mi
-        ports:
-        - containerPort: 80
         securityContext:
           runAsNonRoot: true
           runAsUser: 10001
@@ -204,10 +206,10 @@ spec:
     spec:
       containers:
       - name: catalogue
-        image: weaveworksdemos/catalogue:0.3.5
+        image: gcr.io/pixie-prod/demos/sockshop/catalogue:eksworkshop
         command: ["/app"]
         args:
-        - -port=80
+        - -port=8080
         resources:
           limits:
             cpu: 100m
@@ -229,13 +231,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 80
+            port: 8080
           initialDelaySeconds: 300
           periodSeconds: 3
         readinessProbe:
           httpGet:
             path: /health
-            port: 80
+            port: 8080
           initialDelaySeconds: 180
           periodSeconds: 3
       nodeSelector:
@@ -251,8 +253,10 @@ metadata:
 spec:
   ports:
     # the port that this service should serve on
-  - port: 80
-    targetPort: 80
+  - name: myport
+    port: 80
+    protocol: TCP
+    targetPort: 8080
   selector:
     name: catalogue
 ---
@@ -260,8 +264,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: front-end
-  labels:
-    name: front-end
   namespace: px-sock-shop
 spec:
   replicas: 1
@@ -275,7 +277,7 @@ spec:
     spec:
       containers:
       - name: front-end
-        image: gcr.io/pixie-prod/demos/sockshop/catalogue:eksworkshop
+        image: weaveworksdemos/front-end:0.3.12
         resources:
           limits:
             cpu: 300m
@@ -285,9 +287,6 @@ spec:
             memory: 300Mi
         ports:
         - containerPort: 8079
-        env:
-        - name: SESSION_REDIS
-          value: "true"
         securityContext:
           runAsNonRoot: true
           runAsUser: 10001
@@ -409,17 +408,7 @@ spec:
          - name: ZIPKIN
            value: zipkin.jaeger.svc.cluster.local
          - name: JAVA_OPTS
-           value: >
-             -Xms64m -Xmx128m -XX:PermSize=32m
-             -XX:MaxPermSize=64m -XX:+UseG1GC
-             -Djava.security.egd=file:/dev/urandom
-        resources:
-          limits:
-            cpu: 500m
-            memory: 500Mi
-          requests:
-            cpu: 200m
-            memory: 500Mi
+           value: -Xms64m -Xmx128m -XX:PermSize=32m -XX:MaxPermSize=64m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom
         ports:
         - containerPort: 80
         securityContext:
@@ -556,21 +545,13 @@ spec:
       containers:
       - name: queue-master
         image: weaveworksdemos/queue-master:0.3.1
-        env:
-         - name: ZIPKIN
-           value: zipkin.jaeger.svc.cluster.local
-         - name: JAVA_OPTS
-           value: >
-             -Xms64m -Xmx128m -XX:PermSize=32m
-             -XX:MaxPermSize=64m -XX:+UseG1GC
-             -Djava.security.egd=file:/dev/urandom
-        resources:
-          limits:
-            cpu: 300m
-            memory: 500Mi
-          requests:
-            cpu: 300m
-            memory: 500Mi
+        # resources:
+        #   limits:
+        #     cpu: 300m
+        #     memory: 500Mi
+        #   requests:
+        #     cpu: 300m
+        #     memory: 500Mi
         ports:
         - containerPort: 80
         livenessProbe:
@@ -621,17 +602,12 @@ spec:
     metadata:
       labels:
         name: rabbitmq
-      annotations:
-        prometheus.io/scrape: "false"
     spec:
       containers:
       - name: rabbitmq
-        image: rabbitmq:3.6.8-management
+        image: rabbitmq:3.6.8
         ports:
-        - containerPort: 15672
-          name: management
         - containerPort: 5672
-          name: rabbitmq
         securityContext:
           capabilities:
             drop:
@@ -642,11 +618,6 @@ spec:
               - SETUID
               - DAC_OVERRIDE
           readOnlyRootFilesystem: true
-      - name: rabbitmq-exporter
-        image: kbudde/rabbitmq-exporter
-        ports:
-        - containerPort: 9090
-          name: exporter
       nodeSelector:
         beta.kubernetes.io/os: linux
 ---
@@ -661,66 +632,9 @@ spec:
   ports:
     # the port that this service should serve on
   - port: 5672
-    name: rabbitmq
     targetPort: 5672
-  - port: 9090
-    name: exporter
-    targetPort: exporter
-    protocol: TCP
   selector:
     name: rabbitmq
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: session-db
-  labels:
-    name: session-db
-  namespace: px-sock-shop
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: session-db
-  template:
-    metadata:
-      labels:
-        name: session-db
-      annotations:
-        prometheus.io.scrape: "false"
-    spec:
-      containers:
-      - name: session-db
-        image: redis:alpine
-        ports:
-        - name: redis
-          containerPort: 6379
-        securityContext:
-          capabilities:
-            drop:
-              - all
-            add:
-              - CHOWN
-              - SETGID
-              - SETUID
-          readOnlyRootFilesystem: true
-      nodeSelector:
-        beta.kubernetes.io/os: linux
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: session-db
-  labels:
-    name: session-db
-  namespace: px-sock-shop
-spec:
-  ports:
-    # the port that this service should serve on
-  - port: 6379
-    targetPort: 6379
-  selector:
-    name: session-db
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -746,10 +660,7 @@ spec:
          - name: ZIPKIN
            value: zipkin.jaeger.svc.cluster.local
          - name: JAVA_OPTS
-           value: >
-             -Xms64m -Xmx128m -XX:PermSize=32m
-             -XX:MaxPermSize=64m -XX:+UseG1GC
-             -Djava.security.egd=file:/dev/urandom
+           value: -Xms64m -Xmx128m -XX:PermSize=32m -XX:MaxPermSize=64m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom
         resources:
           limits:
             cpu: 300m
@@ -805,11 +716,6 @@ spec:
   selector:
     name: shipping
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: sock-shop
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -829,8 +735,7 @@ spec:
     spec:
       containers:
       - name: user-db
-        image: weaveworksdemos/user-db:0.3.0
-
+        image: weaveworksdemos/user-db:0.4.0
         ports:
         - name: mongo
           containerPort: 27017
@@ -898,7 +803,7 @@ spec:
         ports:
         - containerPort: 80
         env:
-        - name: mongo
+        - name: MONGO_HOST
           value: user-db:27017
         securityContext:
           runAsNonRoot: true
