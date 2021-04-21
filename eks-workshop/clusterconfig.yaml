@@ -1,0 +1,39 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eksworkshop-eksctl
+  region: ${AWS_REGION}
+
+# https://eksctl.io/usage/eks-managed-nodegroups/
+managedNodeGroups:
+  - name: pixie-demo-ng
+    minSize: 2
+    maxSize: 3
+    desiredCapacity: 3
+    volumeSize: 20
+    labels: {role: ctrl-workers}
+    tags:
+      nodegroup-role: ctrl-workers
+    iam:
+      withAddonPolicies:
+        appMesh: true
+        xRay: true
+        cloudWatch: true
+
+# https://eksctl.io/usage/iamserviceaccounts/
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: pixie-demo-sa
+        namespace: pixie-demo-ns
+        labels: {aws-usage: "application"}
+      attachPolicyARNs:
+        - "arn:aws:iam::aws:policy/AWSAppMeshEnvoyAccess"
+        - "arn:aws:iam::aws:policy/AWSCloudMapDiscoverInstanceAccess"
+        - "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+        - "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+        - "arn:aws:iam::aws:policy/AWSAppMeshFullAccess"
+        - "arn:aws:iam::aws:policy/AWSCloudMapFullAccess"
