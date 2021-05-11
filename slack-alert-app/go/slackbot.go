@@ -26,9 +26,8 @@ import (
 	"time"
 
 	"github.com/slack-go/slack"
-	"go.withpixie.dev/pixie/src/api/go/pxapi"
-	"go.withpixie.dev/pixie/src/api/go/pxapi/errdefs"
-	"go.withpixie.dev/pixie/src/api/go/pxapi/types"
+	"px.dev/pxapi"
+	"px.dev/pxapi/types"
 )
 
 func main() {
@@ -131,7 +130,7 @@ func (t *tableCollector) HandleDone(ctx context.Context) error {
 
 func (t *tableCollector) GetTableDataSync() string {
 	// Wait until the `done` channel is closed, indicating table data has finished collecting.
-	<- t.done
+	<-t.done
 	return t.tableDataBuilder.String()
 }
 
