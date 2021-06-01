@@ -24,9 +24,7 @@ make
 
 ## Run Demo Application
 
-A demo application to profile is included.
-
-TODO(oazizi): Add a demo application.
+A demo application to profile is included: `toy_app/sqrt.go`
 
 ## Run Tracer
 
@@ -38,6 +36,6 @@ sudo ./perf_profiler <target pid> <duration>
 
 To run it on the demo app for 30 seconds, run the following command in a separate terminal:
 ```
-sudo ./perf_profiler $(pgrep -f "demo_app") 30
+sudo ./perf_profiler $(pgrep -f "sqrt") 30
 ```
 
