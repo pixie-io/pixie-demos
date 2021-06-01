@@ -36,6 +36,6 @@ sudo ./perf_profiler <target pid> <duration>
 
 To run it on the demo app for 30 seconds, run the following command in a separate terminal:
 ```
-sudo ./perf_profiler $(pgrep -f "toy_app") 30
+sudo ./perf_profiler $(pgrep -f "sqrt") 30
 ```
 
