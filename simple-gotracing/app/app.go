@@ -25,6 +25,7 @@ import (
 )
 
 // computeE computes the approximation of e by running a fixed number of iterations.
+//go:noinline
 func computeE(iterations int64) float64 {
 	res := 2.0
 	fact := 1.0
