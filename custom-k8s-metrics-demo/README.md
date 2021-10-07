@@ -19,6 +19,9 @@ This demo was based off of the example in [kubernetes-sigs/custom-metrics-apiser
 1. Create a secret containing the Pixie API credentials for your Kubernetes cluster:
 
 ```
+# Create `px-custom-metrics` namespace
+kubectl create namespace px-custom-metrics
+
 # Get your current cluster name from your Kubernetes context
 kubectl config current-context
 # Get the Pixie Cluster ID for the above cluster name.

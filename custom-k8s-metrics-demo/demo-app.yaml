@@ -49,8 +49,6 @@ metadata:
   labels:
     name: echo-service
   namespace: default
-  annotations:
-    cloud.google.com/load-balancer-type: "internal"
 spec:
   type: LoadBalancer
   ports:

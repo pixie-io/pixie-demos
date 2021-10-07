@@ -58,6 +58,8 @@ spec:
         - /adapter
         - --secure-port=6443
         env:
+        - name: PX_CLOUD_ADDR
+          value: withpixie.ai:443
         - name: PX_CLUSTER_ID
           valueFrom:
             secretKeyRef:
