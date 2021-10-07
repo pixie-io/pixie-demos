@@ -1,0 +1,61 @@
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: echo-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: echo-service
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: Pods
+      pods:
+        metric:
+          name: px-http-requests-per-second
+        target:
+          type: AverageValue
+          averageValue: 20
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-service
+  labels:
+    name: echo-service
+    namespace: default
+spec:
+  selector:
+    matchLabels:
+      name: echo-service
+  template:
+    metadata:
+      labels:
+        name: echo-service
+        plane: control
+    spec:
+      containers:
+        - name: app
+          image: gcr.io/pixie-oss/pixie-dev/demo/http_echo_image:latest
+          ports:
+            - containerPort: 9090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-service
+  labels:
+    name: echo-service
+  namespace: default
+  annotations:
+    cloud.google.com/load-balancer-type: "internal"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 9090
+      nodePort: 31001
+  selector:
+    name: echo-service
