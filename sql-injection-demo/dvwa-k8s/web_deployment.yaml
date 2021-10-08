@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dvwa-pixie-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dvwa
+  template:
+    metadata:
+      labels:
+        app: dvwa
+    spec:
+      containers:
+        - name: dvwa
+          image: vulnerables/web-dvwa
+          ports:
+            - name: http
+              containerPort: 80
