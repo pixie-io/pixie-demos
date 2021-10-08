@@ -10,3 +10,4 @@ spec:
   type: LoadBalancer
   selector:
     app: dvwa
+
