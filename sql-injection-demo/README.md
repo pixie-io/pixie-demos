@@ -58,7 +58,7 @@ when prompted:
 ## Capture the SQL Injections using PxL
 1. Browse to your vulnerable cluster on `https://work.withpixie.ai/`.
 1. Under the script drop down select `Scratch Pad`.
-1. Replace the PxL Script contents with the contents of `scripts/sql_injections.pxl`.
-1. Replace the Vis Spec contents with the contents of `scripts/vis.json`.
+1. Replace the PxL Script contents with the contents of `script/sql_injections.pxl`.
+1. Replace the Vis Spec contents with the contents of `script/vis.json`.
 1. Click Run.
 1. You should now see the SQL Injection queries run by SQLMap in the data table.
