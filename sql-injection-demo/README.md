@@ -10,9 +10,24 @@ application, and detect the SQL injections at the database level  using a PxL sc
 ## Prerequisites
 * [Kubernetes](https://kubernetes.io/docs/tasks/tools/) to deploy the vulnerable web
 application monitored by Pixie.
+* [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) to deploy the
+vulnerable web application monitored by Pixie.
+
+    **For Mac users**
+    To run minikube, your mac will need a way to run a Linux VM. We recommend hyperkit
+    as the most compatible and lightweight option: install hyperkit
+
 * A Pixie account.
 
 ## Deploy the Vulnerable Application
+**WARNING** This image is vulnerable to several kinds of attacks, please don't deploy it
+to any public servers.
+1. Run minikube. Linux users should use the kvm2driver and Mac users should use the
+hyperkit driver. Other drivers, including the docker driver, are not supported.
+    ```
+    start --driver=<kvm2|hyperkit> --cni=flannel --cpus=4 --memory=8000 -p=<cluster-name>
+    ```
+1. Run `kubectl get nodes` to verify your cluster is up and running.
 1. Deploy demo application `kubectl apply -f ./dvwa`
 1. Login with username: `admin` , password: `password`
 1. Follow instructions on webpage and click `Create / Reset Database` 
