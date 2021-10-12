@@ -4,7 +4,7 @@ application. In this demo, we will spin up a
 [DVWA web application](https://hub.docker.com/r/vulnerables/web-dvwa) that is vulnerable
 to SQL injection monitored by Pixie, run
 [SQLMap](https://github.com/SQLMapproject/SQLMap) (a sql injection tool) against that
-application, and detect the SQL injections at the database level  using a PxL script.
+application, and detect the SQL injections at the database level using a PxL script.
 
 ## WARNING!
 DVWA is an *intentionally* vulnerable web application. It should **NOT** be deployed to
@@ -16,7 +16,7 @@ details.
 1. Install [Minikube](https://minikube.sigs.k8s.io/docs/start/)
 1. Run minikube. Linux users should use the kvm2driver and Mac users should use the
 [hyperkit](https://minikube.sigs.k8s.io/docs/drivers/hyperkit/) driver. Other drivers,
-including the docker driver, are not supported.
+including the docker driver, are not supported by Pixie.
     ```
     minikube start --driver=<kvm2|hyperkit> --cni=flannel --cpus=4 --memory=8000 -p=<cluster-name>
     ```
@@ -61,8 +61,8 @@ instructions.
 1. Relogin with username: `admin`, password: `password`
 
 ## Manual SQL Injection
-DVWA was designed with an SQL injection that originates from taking raw user input in a
-URL query parameter. The path of the vulernability is
+DVWA was designed with a SQL injection that originates from taking raw user input in a
+URL query parameter. The path of the vulnerability is
 `http://localhost:1234/vulnerabilities/sqli/?id=<SQL-Injection-Point>&Submit=Submit#`.
 An attacker could supply a crafted value for the ID query parameter which ultimately
 would lead to a SQL injection. 
@@ -81,7 +81,7 @@ http://localhost:1234/vulnerabilities/sqli/?id=1%27+union+select+1%2C%40%40versi
 
 ## Automating finding SQL injections with SQLMap
 [SQLMap](https://github.com/SQLMapproject/SQLMap) is a CLI tool that automates finding
-SQL injections via bruteforce and huerstic methods.
+SQL injections via bruteforce and heuristic methods.
 
 1. In a new tab, `git clone` the [SQLMap](https://github.com/SQLMapproject/SQLMap) repo
 based on their instructions in the README and `cd` into it.
@@ -112,7 +112,7 @@ Pixie observed on your cluster.
     ```
 1. Load the above view in the Pixie UI. In your browser, navigate to the URL printed at
 the bottom of the CLI output at `Live UI:`.
-1. Open the script editor (via the want icon on the right).
+1. Open the script editor (Ctrl + E).
 1. Replace the PxL Script tab contents with the contents of `script/sql_injections.pxl`.
 1. Replace the Vis Spec tab contents with the contents of `script/vis.json`.
 1. Click Run.
