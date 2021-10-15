@@ -2,11 +2,11 @@
 
 This is a basic example of how to trace the OpenSSL library using eBPF.
 This tracer uses BCC to deploy the eBPF probes.
+This demo was created to accompany the "Debugging with eBPF Part 3: Tracing SSL/TLS connections" [blog post](https://blog.px.dev/ebpf-openssl-tracing/).
 
 ## Prerequisites
 
 You must have the BCC development package installed. On Ubuntu, the package can be installed as follows:
-
 
 ```
 sudo apt install libbpfcc-dev
@@ -42,6 +42,7 @@ cd ssl_client_server; ./server.py
 ```
 
 In the second terminal, run the client:
+
 ```
 cd ssl_client_server; ./client.py
 ```
@@ -55,9 +56,7 @@ sudo ./openssl_tracer <pid>
 ```
 
 To run it on the demo app, run the following command in a separate terminal:
+
 ```
 sudo ./openssl_tracer $(pgrep -f "./client.py")
 ```
-
-
-
