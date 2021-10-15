@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.INFO)
 
 # The slackbot requires the following configs, which are specified
 # using environment variables. For directions on how to find these
-# config values, see: https://docs.pixielabs.ai/tutorials/slackbot-alert
+# config values, see: https://docs.px.dev/tutorials/integrations/slackbot-alert/
 if "PIXIE_API_KEY" not in os.environ:
     logging.error("Missing `PIXIE_API_KEY` environment variable.")
 pixie_api_key = os.environ['PIXIE_API_KEY']
@@ -41,7 +41,7 @@ slack_bot_token = os.environ['SLACK_BOT_TOKEN']
 # This PxL script ouputs a table of the HTTP total requests count and
 # HTTP error (>4xxx) count for each service in the `px-sock-shop` namespace.
 # To deploy the px-sock-shop demo, see:
-# https://docs.pixielabs.ai/tutorials/slackbot-alert for how to
+# https://docs.px.dev/tutorials/integrations/slackbot-alert/ for how to
 pxl_script = open("http_errors.pxl", "r").read()
 
 
