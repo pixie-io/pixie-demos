@@ -2,7 +2,7 @@
 
 ## custom-k8s-metrics-demo
 
-This demo project shows how to use Pixie to autoscale the number of pods in your Kubernetes deployment based on request throughput, without any code changes.
+This demo project shows how to use Pixie to autoscale the number of pods in your Kubernetes deployment based on request throughput, without any code changes. [Horizontal Pod Autoscaling with Custom Metrics in Kubernetes](https://blog.px.dev/autoscaling-custom-k8s-metric) is the accompanying blog post.
 
 ## ebpf-profiler
 

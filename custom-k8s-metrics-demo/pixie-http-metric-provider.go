@@ -50,10 +50,10 @@ px.display(df[['pod', 'rps']], 'pod_stats')`
 // pixieMetricsProvider is a sample implementation of provider.MetricsProvider which computes K8s metrics
 // from a PxL script.
 type pixieMetricsProvider struct {
-	vizierClient *pxapi.VizierClient
-	client dynamic.Interface
-	mapper apimeta.RESTMapper
-	dataMux sync.Mutex
+	vizierClient    *pxapi.VizierClient
+	client          dynamic.Interface
+	mapper          apimeta.RESTMapper
+	dataMux         sync.Mutex
 	podRequestsPerS map[string]float64
 }
 
@@ -67,7 +67,7 @@ func (p *pixieMetricsProvider) computeMetrics(ctx context.Context) {
 	}
 	log.Println("Refreshing Pixie metrics.")
 	results, err := p.vizierClient.ExecuteScript(ctx, pxlScript, tm)
-	if err != nil  {
+	if err != nil {
 		log.Printf("Error executing PxL script: %s\n", err.Error())
 	}
 	if err = results.Stream(); err != nil {
@@ -77,10 +77,10 @@ func (p *pixieMetricsProvider) computeMetrics(ctx context.Context) {
 
 func (p *pixieMetricsProvider) runMetricsLoop() {
 	ctx := context.Background()
-  for {
+	for {
 		p.computeMetrics(ctx)
-    <-time.After(30 * time.Second)
-  }
+		<-time.After(30 * time.Second)
+	}
 }
 
 // NewPixieMetricProvider returns an instance of the Pixie metrics provider.
@@ -89,7 +89,7 @@ func NewPixieMetricProvider(vizierClient *pxapi.VizierClient, k8sClient dynamic.
 		vizierClient:    vizierClient,
 		client:          k8sClient,
 		mapper:          mapper,
-		podRequestsPerS:  make(map[string]float64),
+		podRequestsPerS: make(map[string]float64),
 	}
 	go provider.runMetricsLoop()
 	return provider
@@ -99,22 +99,22 @@ func (p *pixieMetricsProvider) metricFor(value float64, name types.NamespacedNam
 	// construct a reference referring to the described object
 	objRef, err := helpers.ReferenceFor(p.mapper, name, info)
 	if err != nil {
-			return nil, err
+		return nil, err
 	}
 
 	return &custom_metrics.MetricValue{
-			DescribedObject: objRef,
-			Metric: custom_metrics.MetricIdentifier{
-				Name: info.Metric,
-			},
-			Timestamp:       metav1.Time{time.Now()},
-			Value:           *resource.NewMilliQuantity(int64(value*1000), resource.DecimalSI),
+		DescribedObject: objRef,
+		Metric: custom_metrics.MetricIdentifier{
+			Name: info.Metric,
+		},
+		Timestamp: metav1.Time{time.Now()},
+		Value:     *resource.NewMilliQuantity(int64(value*1000), resource.DecimalSI),
 	}, nil
 }
 
 // GetMetricByName returns the the pod RPS metric.
 func (p *pixieMetricsProvider) GetMetricByName(ctx context.Context, name types.NamespacedName, info provider.CustomMetricInfo, metricSelector labels.Selector) (*custom_metrics.MetricValue, error) {
-	if (info.Metric != httpRpsMetricName || info.GroupResource.Resource != "pods") {
+	if info.Metric != httpRpsMetricName || info.GroupResource.Resource != "pods" {
 		return nil, provider.NewMetricNotFoundError(info.GroupResource, info.Metric)
 	}
 	rps, ok := p.podRequestsPerS[name.String()]
@@ -131,8 +131,6 @@ func (p *pixieMetricsProvider) GetMetricBySelector(ctx context.Context, namespac
 		return nil, err
 	}
 
-	fmt.Printf("GetMetricBySelector names: %+s", names)
-
 	res := make([]custom_metrics.MetricValue, 0, len(names))
 	for _, name := range names {
 		namespacedName := types.NamespacedName{Name: name, Namespace: namespace}
@@ -146,8 +144,6 @@ func (p *pixieMetricsProvider) GetMetricBySelector(ctx context.Context, namespac
 		res = append(res, *value)
 	}
 
-	fmt.Printf("GetMetricBySelector Value list: %+s", res)
-
 	return &custom_metrics.MetricValueList{
 		Items: res,
 	}, nil
@@ -156,17 +152,17 @@ func (p *pixieMetricsProvider) GetMetricBySelector(ctx context.Context, namespac
 // ListAllMetrics returns the single metric defined by this provider. Could be extended to return additional Pixie metrics.
 func (p *pixieMetricsProvider) ListAllMetrics() []provider.CustomMetricInfo {
 	return []provider.CustomMetricInfo{
-			{
-					GroupResource: schema.GroupResource{Group: "", Resource: "pods"},
-					Metric:        httpRpsMetricName,
-					Namespaced:    true,
-			},
+		{
+			GroupResource: schema.GroupResource{Group: "", Resource: "pods"},
+			Metric:        httpRpsMetricName,
+			Namespaced:    true,
+		},
 	}
 }
 
 // Implement the TableRecordHandler interface to processes the PxL script output table record-wise.
 type podStatsCollector struct {
-	podStatsTmp map[string]float64
+	podStatsTmp        map[string]float64
 	onPodStatsComplete func(stats map[string]float64)
 }
 
@@ -190,14 +186,14 @@ func (t *podStatsCollector) HandleDone(ctx context.Context) error {
 
 // Implement the TableMuxer to route pxl script output tables to the correct handler.
 type tableMux struct {
-	podStatsCollector *podStatsCollector
+	podStatsCollector  *podStatsCollector
 	onPodStatsComplete func(stats map[string]float64)
 }
 
 func (s *tableMux) AcceptTable(ctx context.Context, metadata pxTypes.TableMetadata) (pxapi.TableRecordHandler, error) {
 	if metadata.Name == "pod_stats" {
 		s.podStatsCollector = &podStatsCollector{
-			podStatsTmp: make(map[string]float64),
+			podStatsTmp:        make(map[string]float64),
 			onPodStatsComplete: s.onPodStatsComplete,
 		}
 		return s.podStatsCollector, nil
