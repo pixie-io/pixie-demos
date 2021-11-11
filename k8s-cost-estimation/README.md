@@ -1,22 +1,16 @@
 # Kubernetes Cluster Cost Estimation
 
+<img src=".readme_assets/cost_per_request.png" alt="K8s CPU cost estimate">
+
 These PxL scripts demonstrate how to use telemetry data automatically provided by Pixie to estimate the cost of your Kubernetes cluster.
 
-**cpu_cost.pxl**: Estimates yearly CPU cost per Service based on last hour of usage.
+- **cpu_cost.pxl**: Estimates yearly CPU cost per Service based on last hour of usage.
 
-<img src=".readme_assets/cpu_cost.png" alt="K8s CPU cost estimate">
+- **mem_cost.pxl**: Estimates yearly memory cost per Service based on last hour of usage.
 
-**mem_cost.pxl**: Estimates yearly memory cost per Service based on last hour of usage.
+- **network_cost.pxl**: Estimates yearly network cost per Service based on last hour of usage.
 
-<img src=".readme_assets/mem_cost.png" alt="K8s memory cost estimate">
-
-**network_cost.pxl**: Estimates yearly network cost per Service based on last hour of usage.
-
-<img src=".readme_assets/network_cost.png" alt="K8s network cost estimate">
-
-**cost_per_request.pxl**: Estimates yearly number of requests per Service based on last hour of usage.
-
-<img src=".readme_assets/cost_per_request.png" alt="K8s cost per request estimate">
+- **cost_per_request.pxl**: Estimates yearly number of requests per Service based on last hour of usage.
 
 ## Instructions
 
@@ -24,7 +18,7 @@ These PxL scripts demonstrate how to use telemetry data automatically provided b
 
 2. Adjust the placeholder cost values at the top each script depending on your specific cloud provider's pricing model.
 
-2. Run the scripts using Pixie's Live CLI or UI.
+3. Run the scripts using Pixie's Live CLI or UI.
 
 >> Using the [Live CLI](https://docs.px.dev/using-pixie/using-cli/#use-the-live-cli):
 
@@ -34,7 +28,7 @@ These PxL scripts demonstrate how to use telemetry data automatically provided b
 >> - Sort table columns by clicking the column title.
 
 >> Using the [Live UI](https://docs.px.dev/using-pixie/using-live-ui/):
-
+>>
 >> - Select the `Scratch Pad` script from the script drop-down menu.
 >> - Open the editor using `ctrl+e` (Windows, Linux) or `cmd+e`(Mac).
 >> - Paste the contents of the script into the editor and close the editor using `ctrl+e` (Windows, Linux) or `cmd+e`(Mac).
