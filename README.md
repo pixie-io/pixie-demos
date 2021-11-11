@@ -12,6 +12,10 @@ Demo project to accompany the [Building a Continuous Profiler Part 2: A Simple e
 
 Resources for the [Monitoring with Pixie](https://www.eksworkshop.com/intermediate/241_pixie/) AWS EKS Workshop.
 
+## k8s-cost-estimation
+
+Estimate the cost of hosting your Kubernetes cluster.
+
 ## openssl-tracer
 
 Demo project to accompany the [Debugging with eBPF Part 3: Tracing SSL/TLS connections](https://blog.px.dev/ebpf-openssl-tracing/) blog post. This is a basic example of how to trace the OpenSSL library using eBPF. This tracer uses BCC to deploy the eBPF probes.
