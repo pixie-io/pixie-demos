@@ -6,7 +6,6 @@ egress_cost_per_gib = 0.012
 
 
 def hourly_egress_by_pod():
-
     # Load the last 1 hr of Pixie's `conn_stats` table into a Dataframe.
     # The `conn_stats` table contains contains statistics on the communications
     # made between client-server pairs.

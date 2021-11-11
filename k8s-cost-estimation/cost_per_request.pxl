@@ -9,7 +9,6 @@ egress_cost_per_gib = 0.012
 
 
 def cpu_time_ns_by_service():
-
     # Load the last 1 hr of Pixie's `process_stats` table into a Dataframe.
     # The `process_stats` table contains CPU, memory and IO stats for all
     # K8s processes in your cluster.
@@ -58,7 +57,6 @@ def yearly_cpu_cost():
 
 
 def hourly_mem_by_service():
-
     # Load the last 1 hr of Pixie's `process_stats` table into a Dataframe.
     # The `process_stats` table contains CPU, memory and IO stats for all
     # K8s processes in your cluster.
@@ -94,7 +92,6 @@ def yearly_mem_cost():
 
 
 def hourly_egress_by_pod():
-
     # Load the last 1 hr of Pixie's `conn_stats` table into a Dataframe.
     # The `conn_stats` table contains contains statistics on the communications
     # made between client-server pairs.
@@ -145,7 +142,6 @@ def yearly_egress_cost():
 
 
 def requests_per_service():
-
     # Load the last 1 hr of Pixie's `http_events` table into a Dataframe.
     # The `http_events` table contains contains HTTP request-response pair events.
     df = px.DataFrame(table='http_events', start_time="-1h")
@@ -166,7 +162,6 @@ def yearly_requests_by_service():
 
 
 def yearly_cost_per_request_per_service():
-
     # Join CPU and Mem cost tables by service column.
     df_cpu = yearly_cpu_cost_by_service()
     df_mem = yearly_mem_cost_by_service()
