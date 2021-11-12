@@ -3,7 +3,6 @@ import px
 bytes_per_gb = 1024 * 1024 * 1024
 
 # Adjust these values based on your cloud provider's pricing.
-ingress_cost_per_gib = 0
 egress_cost_per_gib = 0.012
 
 
@@ -16,40 +15,41 @@ def hourly_egress_by_pod():
     # Add K8s context using the table record's UPID.
     df.service = df.ctx['service']
 
-    # Fitler for external traffic only (i.e. remote_addr does not resolve to a pod)
-    df.remote_addr_pod = px.pod_id_to_pod_name(px.ip_to_pod_id(df.remote_addr))
-    df = df[df.remote_addr_pod == '']
+    # Filter for egress traffic only:
+    # trace-role of 1 means client-side tracing. Pixie only
+    # traces on the client-side when traffic is leaving the cluster.
+    df = df[df.trace_role == 1]
+    # Filter out any client-side tracing to known pods.
+    df.remote_pod_id = px.ip_to_pod_id(df.remote_addr)
+    df.remote_service_id = px.ip_to_service_id(df.remote_addr)
+    df = df[df.remote_pod_id == '' and df.remote_service_id == '']
+    # Filter out localhost.
+    df = df[not df.remote_addr == '127.0.0.1']
+    df = df[not df.remote_addr == '0.0.0.0']
 
     # Calculate network usage for each service.
     df = df.groupby('service').agg(
-        # The fields below are counters, so we take the min (starting value)
-        # and the max (ending value) to subtract them.
-        bytes_recv_min=('bytes_recv', px.min),
-        bytes_recv_max=('bytes_recv', px.max),
+        # The fields below are counters per UPID, so we take the min
+        # (starting value) and the max (ending value) to subtract them.
         bytes_sent_min=('bytes_sent', px.min),
         bytes_sent_max=('bytes_sent', px.max),
     )
 
     # Calculate bytes transferred over the time window.
     df.bytes_sent = df.bytes_sent_max - df.bytes_sent_min
-    df.bytes_recv = df.bytes_recv_max - df.bytes_recv_min
 
     # Sum network traffic by service.
     df = df.groupby('service').agg(
         bytes_sent=('bytes_sent', px.sum),
-        bytes_recv=('bytes_recv', px.sum),
     )
     df.gb_egress = df.bytes_sent / bytes_per_gb
-    df.gb_ingress = df.bytes_recv / bytes_per_gb
     return df
 
 
 def yearly_egress_cost_by_service():
     df = hourly_egress_by_pod()
     # Estimate yearly usage based on last hour of usage.
-    df.egress_cost_per_year = df.gb_egress * 24 * 365 * egress_cost_per_gib
-    df.ingress_cost_per_year = df.gb_ingress * 24 * 365 * ingress_cost_per_gib
-    df.network_cost_per_year = df.egress_cost_per_year + df.ingress_cost_per_year
+    df.network_cost_per_year = df.gb_egress * 24 * 365 * egress_cost_per_gib
     return df[['service', 'network_cost_per_year']]
 
 

@@ -15,17 +15,17 @@ def cpu_time_ns_by_service():
     # Add K8s context using the table record's UPID.
     df.service = df.ctx['service']
 
-    # Calculate CPU usage by each process (UPID) in each service.
+    # Calculate CPU usage for each process (UPID) in each service.
     df = df.groupby(['service', 'upid']).agg(
-        # The fields below are counters, so we take the min (starting value)
-        # and the max (ending value) to subtract them.
+        # The fields below are counters per UPID, so we take the min
+        # (starting value) and the max (ending value) to subtract them.
         cpu_utime_ns_max=('cpu_utime_ns', px.max),
         cpu_utime_ns_min=('cpu_utime_ns', px.min),
         cpu_ktime_ns_max=('cpu_ktime_ns', px.max),
         cpu_ktime_ns_min=('cpu_ktime_ns', px.min)
     )
 
-    # Calculate CPU usage over the time window.
+    # Calculate CPU usage per process (UPID) over the time window.
     df.cpu_utime_ns = df.cpu_utime_ns_max - df.cpu_utime_ns_min
     df.cpu_ktime_ns = df.cpu_ktime_ns_max - df.cpu_ktime_ns_min
 

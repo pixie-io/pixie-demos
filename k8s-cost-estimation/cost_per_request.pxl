@@ -19,18 +19,19 @@ def hourly_cpu_mem_by_service():
     # Add K8s context using the table record's UPID.
     df.service = df.ctx['service']
 
-    # Calculate CPU and memory usage by each process (UPID) in each service.
+    # Calculate CPU and memory usage for each process (UPID) for each service.
     df = df.groupby(['service', 'upid']).agg(
-        # The fields below are counters, so we take the min (starting value)
-        # and the max (ending value) to subtract them.
+        # The fields below are counters per UPID, so we take the min
+        # (starting value) and the max (ending value) to subtract them.
         cpu_utime_ns_max=('cpu_utime_ns', px.max),
         cpu_utime_ns_min=('cpu_utime_ns', px.min),
         cpu_ktime_ns_max=('cpu_ktime_ns', px.max),
         cpu_ktime_ns_min=('cpu_ktime_ns', px.min),
         vsize=('vsize_bytes', px.mean),
+        rss=('rss_bytes', px.mean)
     )
 
-    # Calculate CPU usage over the time window.
+    # Calculate CPU usage per process (UPID) over the time window.
     df.cpu_utime_ns = df.cpu_utime_ns_max - df.cpu_utime_ns_min
     df.cpu_ktime_ns = df.cpu_ktime_ns_max - df.cpu_ktime_ns_min
 
@@ -39,11 +40,13 @@ def hourly_cpu_mem_by_service():
         cpu_utime_ns=('cpu_utime_ns', px.sum),
         cpu_ktime_ns=('cpu_ktime_ns', px.sum),
         vsize_bytes=('vsize', px.sum),
+        rss_bytes=('rss', px.sum)
     )
 
     # Calculate total (kernel + user time) CPU used.
     df.cpu_time_ns = px.DurationNanos(df.cpu_ktime_ns + df.cpu_utime_ns)
-    df.mem_gb = df.vsize_bytes / bytes_per_gb
+    df.vsize_gb = df.vsize_bytes / bytes_per_gb
+    df.rss_gb = df.rss_bytes / bytes_per_gb
 
     return df
 
@@ -53,7 +56,7 @@ def yearly_cpu_mem_cost_by_service():
     # Estimate yearly usage based on last hour of usage.
     df.cpu_time_frac_hour = df.cpu_time_ns / nanos_per_hour
     df.cpu_cost_per_year = df.cpu_time_frac_hour * cpu_cost_per_hour * 24 * 365
-    df.mem_cost_per_year = df.mem_gb * mem_gb_cost_per_hour * 24 * 365
+    df.mem_cost_per_year = df.rss_gb * mem_gb_cost_per_hour * 24 * 365
     return df[['service', 'cpu_cost_per_year', 'mem_cost_per_year']]
 
 
@@ -75,40 +78,41 @@ def hourly_egress_by_pod():
     # Add K8s context using the table record's UPID.
     df.service = df.ctx['service']
 
-    # Fitler for external traffic only (i.e. remote_addr does not resolve to a pod)
-    df.remote_addr_pod = px.pod_id_to_pod_name(px.ip_to_pod_id(df.remote_addr))
-    df = df[df.remote_addr_pod == '']
+    # Filter for egress traffic only:
+    # trace-role of 1 means client-side tracing. Pixie only
+    # traces on the client-side when traffic is leaving the cluster.
+    df = df[df.trace_role == 1]
+    # Filter out any client-side tracing to known pods.
+    df.remote_pod_id = px.ip_to_pod_id(df.remote_addr)
+    df.remote_service_id = px.ip_to_service_id(df.remote_addr)
+    df = df[df.remote_pod_id == '' and df.remote_service_id == '']
+    # Filter out localhost.
+    df = df[not df.remote_addr == '127.0.0.1']
+    df = df[not df.remote_addr == '0.0.0.0']
 
     # Calculate network usage for each service.
     df = df.groupby('service').agg(
-        # The fields below are counters, so we take the min (starting value)
-        # and the max (ending value) to subtract them.
-        bytes_recv_min=('bytes_recv', px.min),
-        bytes_recv_max=('bytes_recv', px.max),
+        # The fields below are counters per UPID, so we take the min
+        # (starting value) and the max (ending value) to subtract them.
         bytes_sent_min=('bytes_sent', px.min),
         bytes_sent_max=('bytes_sent', px.max),
     )
 
     # Calculate bytes transferred over the time window.
     df.bytes_sent = df.bytes_sent_max - df.bytes_sent_min
-    df.bytes_recv = df.bytes_recv_max - df.bytes_recv_min
 
     # Sum network traffic by service.
     df = df.groupby('service').agg(
         bytes_sent=('bytes_sent', px.sum),
-        bytes_recv=('bytes_recv', px.sum),
     )
     df.gb_egress = df.bytes_sent / bytes_per_gb
-    df.gb_ingress = df.bytes_recv / bytes_per_gb
     return df
 
 
 def yearly_egress_cost_by_service():
     df = hourly_egress_by_pod()
     # Estimate yearly usage based on last hour of usage.
-    df.egress_cost_per_year = df.gb_egress * 24 * 365 * egress_cost_per_gib
-    df.ingress_cost_per_year = df.gb_ingress * 24 * 365 * ingress_cost_per_gib
-    df.network_cost_per_year = df.egress_cost_per_year + df.ingress_cost_per_year
+    df.network_cost_per_year = df.gb_egress * 24 * 365 * egress_cost_per_gib
     return df[['service', 'network_cost_per_year']]
 
 
@@ -176,9 +180,9 @@ def yearly_cost_per_request_per_service():
     df_final.drop('service_3')
 
     # Divide cost by total number of requests
-    df_final.cost_per_request = df_final.total_yearly_cost / df_final.yearly_num_requests
+    df_final.cost_per_million_requests = df_final.total_yearly_cost / df_final.yearly_num_requests * 1000000
 
-    return df_final[['service', 'cost_per_request', 'yearly_num_requests', 'total_yearly_cost',
+    return df_final[['service', 'cost_per_million_requests', 'yearly_num_requests', 'total_yearly_cost',
                      'cpu_cost_per_year', 'mem_cost_per_year', 'network_cost_per_year']]
 
 
