@@ -1,7 +1,7 @@
 import px
 
 bytes_per_gb = 1024 * 1024 * 1024
-mem_gb_cost_per_hour = 0.005
+mem_gb_cost_per_hour = 0.004
 
 
 def hourly_mem_by_service():

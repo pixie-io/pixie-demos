@@ -1,7 +1,7 @@
 import px
 
 nanos_per_hour = 60*60*1000*1000*1000
-cpu_cost_per_hour = 0.05
+cpu_cost_per_hour = 0.03
 
 
 def cpu_time_ns_by_service():

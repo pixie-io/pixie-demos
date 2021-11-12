@@ -1,14 +1,15 @@
 import px
 
-nanos_per_hour = 60*60*1000*1000*1000
-cpu_cost_per_hour = 0.05
-bytes_per_gb = 1024 * 1024 * 1024
-mem_gb_cost_per_hour = 0.005
+cpu_cost_per_hour = 0.03
+mem_gb_cost_per_hour = 0.004
 ingress_cost_per_gib = 0
 egress_cost_per_gib = 0.012
 
+nanos_per_hour = 60*60*1000*1000*1000
+bytes_per_gb = 1024 * 1024 * 1024
 
-def cpu_time_ns_by_service():
+
+def hourly_cpu_mem_by_service():
     # Load the last 1 hr of Pixie's `process_stats` table into a Dataframe.
     # The `process_stats` table contains CPU, memory and IO stats for all
     # K8s processes in your cluster.
@@ -25,7 +26,8 @@ def cpu_time_ns_by_service():
         cpu_utime_ns_max=('cpu_utime_ns', px.max),
         cpu_utime_ns_min=('cpu_utime_ns', px.min),
         cpu_ktime_ns_max=('cpu_ktime_ns', px.max),
-        cpu_ktime_ns_min=('cpu_ktime_ns', px.min)
+        cpu_ktime_ns_min=('cpu_ktime_ns', px.min),
+        vsize=('vsize_bytes', px.mean),
     )
 
     df.cpu_utime_ns = df.cpu_utime_ns_max - df.cpu_utime_ns_min
@@ -34,60 +36,29 @@ def cpu_time_ns_by_service():
     # Group by unique service and calculate the sum of CPU time.
     df = df.groupby('service').agg(
         cpu_utime_ns=('cpu_utime_ns', px.sum),
-        cpu_ktime_ns=('cpu_ktime_ns', px.sum)
+        cpu_ktime_ns=('cpu_ktime_ns', px.sum),
+        vsize_bytes=('vsize', px.sum),
     )
 
     df.cpu_time_ns = px.DurationNanos(df.cpu_ktime_ns + df.cpu_utime_ns)
+    df.mem_gb = df.vsize_bytes / bytes_per_gb
 
     return df
 
 
-def yearly_cpu_cost_by_service():
-    df = cpu_time_ns_by_service()
+def yearly_cpu_mem_cost_by_service():
+    df = hourly_cpu_mem_by_service()
     df.cpu_time_frac_hour = df.cpu_time_ns / nanos_per_hour
     df.cpu_cost_per_year = df.cpu_time_frac_hour * cpu_cost_per_hour * 24 * 365
-    return df[['service', 'cpu_cost_per_year']]
-
-
-def yearly_cpu_cost():
-    df = yearly_cpu_cost_by_service()
-    return df.agg(
-       cpu_cost_per_year=('cpu_cost_per_year', px.sum)
-    )
-
-
-def hourly_mem_by_service():
-    # Load the last 1 hr of Pixie's `process_stats` table into a Dataframe.
-    # The `process_stats` table contains CPU, memory and IO stats for all
-    # K8s processes in your cluster.
-    df = px.DataFrame(table='process_stats', start_time="-1h")
-
-    # Add K8s context using the table record's UPID.
-    df.service = df.ctx['service']
-
-    # Calculate usage by process (UPID) in each K8s object.
-    df = df.groupby(['service', 'upid']).agg(
-        vsize=('vsize_bytes', px.mean),
-    )
-
-    # Sum memory metrics per unique pairs of 'service'.
-    df = df.groupby('service').agg(
-        vsize_bytes=('vsize', px.sum),
-    )
-    df.mem_gb = df.vsize_bytes / bytes_per_gb
-    return df
-
-
-def yearly_mem_cost_by_service():
-    df = hourly_mem_by_service()
     df.mem_cost_per_year = df.mem_gb * mem_gb_cost_per_hour * 24 * 365
-    return df[['service', 'mem_cost_per_year']]
+    return df[['service', 'cpu_cost_per_year', 'mem_cost_per_year']]
 
 
-def yearly_mem_cost():
-    df = yearly_mem_cost_by_service()
+def yearly_cpu_mem_cost():
+    df = yearly_cpu_mem_cost_by_service()
     return df.agg(
-        mem_cost_per_year=('mem_cost_per_year', px.sum)
+       cpu_cost_per_year=('cpu_cost_per_year', px.sum),
+       mem_cost_per_year=('mem_cost_per_year', px.sum),
     )
 
 
@@ -141,7 +112,31 @@ def yearly_egress_cost():
     )
 
 
-def requests_per_service():
+def yearly_total_cost_per_service():
+    df_cpu_mem = yearly_cpu_mem_cost_by_service()
+
+    # Join with egress table by service column
+    df_egress = yearly_egress_cost_by_service()
+    df = df_cpu_mem.merge(df_egress, how='left', left_on='service', right_on='service',
+                          suffixes=['', '_1'])
+    df.drop('service_1')
+
+    # Calculate total cost per service
+    df.total_yearly_cost = df.cpu_cost_per_year + df.mem_cost_per_year + df.network_cost_per_year
+    return df
+
+
+def yearly_total_cost():
+    df = yearly_total_cost_per_service()
+    return df.agg(
+       total_yearly_cost=('total_yearly_cost', px.sum),
+       cpu_yearly_cost=('cpu_cost_per_year', px.sum),
+       mem_yearly_cost=('mem_cost_per_year', px.sum),
+       network_yearly_cost=('network_cost_per_year', px.sum),
+    )
+
+
+def hourly_requests_per_service():
     # Load the last 1 hr of Pixie's `http_events` table into a Dataframe.
     # The `http_events` table contains contains HTTP request-response pair events.
     df = px.DataFrame(table='http_events', start_time="-1h")
@@ -156,27 +151,13 @@ def requests_per_service():
 
 
 def yearly_requests_by_service():
-    df = requests_per_service()
+    df = hourly_requests_per_service()
     df.yearly_num_requests = df.num_requests * 24 * 365
     return df[['service', 'yearly_num_requests']]
 
 
 def yearly_cost_per_request_per_service():
-    # Join CPU and Mem cost tables by service column.
-    df_cpu = yearly_cpu_cost_by_service()
-    df_mem = yearly_mem_cost_by_service()
-    df_cpu_mem = df_cpu.merge(df_mem, how='left', left_on='service', right_on='service',
-                              suffixes=['', '_1'])
-    df_cpu_mem.drop('service_1')
-
-    # Joinw with egress table by service column
-    df_egress = yearly_egress_cost_by_service()
-    df = df_cpu_mem.merge(df_egress, how='left', left_on='service', right_on='service',
-                          suffixes=['', '_2'])
-    df.drop('service_2')
-
-    # Calculate total cost per service
-    df.total_yearly_cost = df.cpu_cost_per_year + df.mem_cost_per_year + df.network_cost_per_year
+    df = yearly_total_cost_per_service()
 
     # Calculate total requests by service
     df_requests = yearly_requests_by_service()
@@ -192,6 +173,9 @@ def yearly_cost_per_request_per_service():
     return df_final[['service', 'cost_per_request', 'yearly_num_requests', 'total_yearly_cost',
                      'cpu_cost_per_year', 'mem_cost_per_year', 'network_cost_per_year']]
 
+
+df = yearly_total_cost()
+px.display(df, 'Total Cost (Yearly)')
 
 df = yearly_cost_per_request_per_service()
 px.display(df, 'Cost per Request By Service (Yearly)')
