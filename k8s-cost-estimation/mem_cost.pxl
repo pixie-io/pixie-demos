@@ -17,16 +17,13 @@ def hourly_mem_by_service():
 
     # Calculate memory usage for each process (UPID) in each service.
     df = df.groupby(['service', 'upid']).agg(
-        vsize=('vsize_bytes', px.mean),
         rss=('rss_bytes', px.mean)
     )
 
     # Sum memory time by service.
     df = df.groupby('service').agg(
-        vsize_bytes=('vsize', px.sum),
         rss_bytes=('rss', px.sum)
     )
-    df.vsize_gb = df.vsize_bytes / bytes_per_gb
     df.rss_gb = df.rss_bytes / bytes_per_gb
     return df
 

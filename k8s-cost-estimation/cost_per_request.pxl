@@ -27,7 +27,6 @@ def hourly_cpu_mem_by_service():
         cpu_utime_ns_min=('cpu_utime_ns', px.min),
         cpu_ktime_ns_max=('cpu_ktime_ns', px.max),
         cpu_ktime_ns_min=('cpu_ktime_ns', px.min),
-        vsize=('vsize_bytes', px.mean),
         rss=('rss_bytes', px.mean)
     )
 
@@ -39,13 +38,11 @@ def hourly_cpu_mem_by_service():
     df = df.groupby('service').agg(
         cpu_utime_ns=('cpu_utime_ns', px.sum),
         cpu_ktime_ns=('cpu_ktime_ns', px.sum),
-        vsize_bytes=('vsize', px.sum),
         rss_bytes=('rss', px.sum)
     )
 
     # Calculate total (kernel + user time) CPU used.
     df.cpu_time_ns = px.DurationNanos(df.cpu_ktime_ns + df.cpu_utime_ns)
-    df.vsize_gb = df.vsize_bytes / bytes_per_gb
     df.rss_gb = df.rss_bytes / bytes_per_gb
 
     return df
@@ -180,10 +177,11 @@ def yearly_cost_per_request_per_service():
     df_final.drop('service_3')
 
     # Divide cost by total number of requests
-    df_final.cost_per_million_requests = df_final.total_yearly_cost / df_final.yearly_num_requests * 1000000
-
-    return df_final[['service', 'cost_per_million_requests', 'yearly_num_requests', 'total_yearly_cost',
-                     'cpu_cost_per_year', 'mem_cost_per_year', 'network_cost_per_year']]
+    df_final.cost_per_request = df_final.total_yearly_cost / df_final.yearly_num_requests
+    df_final.cost_per_million_requests = df_final.cost_per_request * 1000000
+    return df_final[['service', 'cost_per_million_requests', 'yearly_num_requests',
+                     'total_yearly_cost', 'cpu_cost_per_year', 'mem_cost_per_year',
+                     'network_cost_per_year']]
 
 
 df = yearly_total_cost()
