@@ -11,8 +11,8 @@ egress_cost_per_gib = 0.012
 
 
 def hourly_cpu_mem_by_service():
-    # Load the last 1 hr of Pixie's `process_stats` table into a Dataframe.
-    # The `process_stats` table contains CPU, memory and IO stats for all
+    # Load the last 1 hr of Pixie's 'process_stats' table into a Dataframe.
+    # The 'process_stats' table contains CPU, memory and IO stats for all
     # K8s processes in your cluster.
     df = px.DataFrame(table='process_stats', start_time="-1h")
 
@@ -67,31 +67,33 @@ def yearly_cpu_mem_cost():
 
 
 def hourly_egress_by_pod():
-    # Load the last 1 hr of Pixie's `conn_stats` table into a Dataframe.
-    # The `conn_stats` table contains contains statistics on the communications
+    # Load the last 1 hr of Pixie's 'conn_stats' table into a Dataframe.
+    # The 'conn_stats' table contains contains statistics on the communications
     # made between client-server pairs.
     df = px.DataFrame(table='conn_stats', start_time="-1h")
 
     # Add K8s context using the table record's UPID.
     df.service = df.ctx['service']
 
-    # Filter out anything where anything remote_addr resolves a pod
+    # Fitler for external traffic only (i.e. remote_addr does not resolve to a pod)
     df.remote_addr_pod = px.pod_id_to_pod_name(px.ip_to_pod_id(df.remote_addr))
     df = df[df.remote_addr_pod == '']
 
-    # Find min/max bytes transferred over the selected time window per pod.
+    # Calculate network usage for each service.
     df = df.groupby('service').agg(
+        # The fields below are counters, so we take the min (starting value)
+        # and the max (ending value) to subtract them.
         bytes_recv_min=('bytes_recv', px.min),
         bytes_recv_max=('bytes_recv', px.max),
         bytes_sent_min=('bytes_sent', px.min),
         bytes_sent_max=('bytes_sent', px.max),
     )
 
-    # Calculate bytes transferred over the time window
+    # Calculate bytes transferred over the time window.
     df.bytes_sent = df.bytes_sent_max - df.bytes_sent_min
     df.bytes_recv = df.bytes_recv_max - df.bytes_recv_min
 
-    # Sum network traffic per unique pair of 'service' and 'pod'.
+    # Sum network traffic by service.
     df = df.groupby('service').agg(
         bytes_sent=('bytes_sent', px.sum),
         bytes_recv=('bytes_recv', px.sum),
@@ -103,6 +105,7 @@ def hourly_egress_by_pod():
 
 def yearly_egress_cost_by_service():
     df = hourly_egress_by_pod()
+    # Estimate yearly usage based on last hour of usage.
     df.egress_cost_per_year = df.gb_egress * 24 * 365 * egress_cost_per_gib
     df.ingress_cost_per_year = df.gb_ingress * 24 * 365 * ingress_cost_per_gib
     df.network_cost_per_year = df.egress_cost_per_year + df.ingress_cost_per_year
@@ -111,6 +114,7 @@ def yearly_egress_cost_by_service():
 
 def yearly_egress_cost():
     df = yearly_egress_cost_by_service()
+    # Calcualte yearly network cost across all services.
     return df.agg(
        network_cost_per_year=('network_cost_per_year', px.sum)
     )
@@ -141,8 +145,8 @@ def yearly_total_cost():
 
 
 def hourly_requests_per_service():
-    # Load the last 1 hr of Pixie's `http_events` table into a Dataframe.
-    # The `http_events` table contains contains HTTP request-response pair events.
+    # Load the last 1 hr of Pixie's 'http_events' table into a Dataframe.
+    # The 'http_events' table contains contains HTTP request-response pair events.
     df = px.DataFrame(table='http_events', start_time="-1h")
 
     # Add K8s context using the table record's UPID.
@@ -179,7 +183,7 @@ def yearly_cost_per_request_per_service():
 
 
 df = yearly_total_cost()
-px.display(df, 'Total Cost (Yearly)')
+px.display(df, 'Estimated Total Cost (Yearly)')
 
 df = yearly_cost_per_request_per_service()
-px.display(df, 'Cost per Request By Service (Yearly)')
+px.display(df, 'Estimated Cost per Request By Service (Yearly)')
