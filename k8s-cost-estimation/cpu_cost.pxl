@@ -1,0 +1,64 @@
+import px
+
+nanos_per_hour = 60*60*1000*1000*1000
+
+# Adjust this value based on your cloud provider's pricing.
+cpu_cost_per_hour = 0.03
+
+
+def cpu_time_ns_by_service():
+    # Load the last 1 hr of Pixie's `process_stats` table into a Dataframe.
+    # The `process_stats` table contains CPU, memory and IO stats for all
+    # K8s processes in your cluster.
+    df = px.DataFrame(table='process_stats', start_time="-1h")
+
+    # Add K8s context using the table record's UPID.
+    df.service = df.ctx['service']
+
+    # Calculate CPU usage by each process (UPID) in each service.
+    df = df.groupby(['service', 'upid']).agg(
+        # The fields below are counters, so we take the min (starting value)
+        # and the max (ending value) to subtract them.
+        cpu_utime_ns_max=('cpu_utime_ns', px.max),
+        cpu_utime_ns_min=('cpu_utime_ns', px.min),
+        cpu_ktime_ns_max=('cpu_ktime_ns', px.max),
+        cpu_ktime_ns_min=('cpu_ktime_ns', px.min)
+    )
+
+    # Calculate CPU usage over the time window.
+    df.cpu_utime_ns = df.cpu_utime_ns_max - df.cpu_utime_ns_min
+    df.cpu_ktime_ns = df.cpu_ktime_ns_max - df.cpu_ktime_ns_min
+
+    # Sum CPU time by service.
+    df = df.groupby('service').agg(
+        cpu_utime_ns=('cpu_utime_ns', px.sum),
+        cpu_ktime_ns=('cpu_ktime_ns', px.sum)
+    )
+
+    # Calculate total (kernel + user time) CPU used.
+    df.cpu_time_ns = px.DurationNanos(df.cpu_ktime_ns + df.cpu_utime_ns)
+    return df
+
+
+def yearly_cpu_cost_by_service():
+    df = cpu_time_ns_by_service()
+    # Calculate CPU time per hour
+    df.cpu_time_frac_hour = df.cpu_time_ns / nanos_per_hour
+    # Estimate yearly usage based on last hour of usage.
+    df.cpu_cost_per_year = df.cpu_time_frac_hour * cpu_cost_per_hour * 24 * 365
+    return df[['service', 'cpu_cost_per_year']]
+
+
+def yearly_cpu_cost():
+    df = yearly_cpu_cost_by_service()
+    # Calcualte yearly CPU cost across all services.
+    return df.agg(
+       cpu_cost_per_year=('cpu_cost_per_year', px.sum)
+    )
+
+
+df = yearly_cpu_cost_by_service()
+px.display(df, 'CPU Cost By Service (Yearly)')
+
+df = yearly_cpu_cost()
+px.display(df, 'CPU Cost (Yearly)')

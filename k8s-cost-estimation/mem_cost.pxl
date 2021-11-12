@@ -1,0 +1,50 @@
+import px
+
+bytes_per_gb = 1024 * 1024 * 1024
+
+# Adjust this value based on your cloud provider's pricing.
+mem_gb_cost_per_hour = 0.004
+
+
+def hourly_mem_by_service():
+    # Load the last 1 hr of Pixie's `process_stats` table into a Dataframe.
+    # The `process_stats` table contains CPU, memory and IO stats for all
+    # K8s processes in your cluster.
+    df = px.DataFrame(table='process_stats', start_time="-1h")
+
+    # Add K8s context using the table record's UPID.
+    df.service = df.ctx['service']
+
+    # Calculate memory usage by each process (UPID) in each service.
+    df = df.groupby(['service', 'upid']).agg(
+        vsize=('vsize_bytes', px.mean),
+    )
+
+    # Sum memory time by service.
+    df = df.groupby('service').agg(
+        vsize_bytes=('vsize', px.sum),
+    )
+    df.mem_gb = df.vsize_bytes / bytes_per_gb
+    return df
+
+
+def yearly_mem_cost_by_service():
+    df = hourly_mem_by_service()
+    # Estimate yearly usage based on last hour of usage.
+    df.mem_cost_per_year = df.mem_gb * mem_gb_cost_per_hour * 24 * 365
+    return df[['service', 'mem_cost_per_year']]
+
+
+def yearly_mem_cost():
+    df = yearly_mem_cost_by_service()
+    # Calcualte yearly CPU cost across all services.
+    return df.agg(
+        mem_cost_per_year=('mem_cost_per_year', px.sum)
+    )
+
+
+df = yearly_mem_cost_by_service()
+px.display(df, 'Memory Cost By Service (Yearly)')
+
+df = yearly_mem_cost()
+px.display(df, 'Memory Cost (Yearly)')
