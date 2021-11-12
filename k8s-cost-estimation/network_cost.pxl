@@ -8,8 +8,8 @@ egress_cost_per_gib = 0.012
 
 
 def hourly_egress_by_pod():
-    # Load the last 1 hr of Pixie's `conn_stats` table into a Dataframe.
-    # The `conn_stats` table contains contains statistics on the communications
+    # Load the last 1 hr of Pixie's 'conn_stats' table into a Dataframe.
+    # The 'conn_stats' table contains contains statistics on the communications
     # made between client-server pairs.
     df = px.DataFrame(table='conn_stats', start_time="-1h")
 
@@ -62,7 +62,7 @@ def yearly_egress_cost():
 
 
 df = yearly_egress_cost_by_service()
-px.display(df, 'Egress Cost By Service (Yearly)')
+px.display(df, 'Estimated Network Cost By Service (Yearly)')
 
 df = yearly_egress_cost()
-px.display(df, 'Egress Cost (Yearly)')
+px.display(df, 'Estimated Network Cost (Yearly)')
