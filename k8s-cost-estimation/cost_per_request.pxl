@@ -1,12 +1,13 @@
 import px
 
+nanos_per_hour = 60*60*1000*1000*1000
+bytes_per_gb = 1024 * 1024 * 1024
+
+# Adjust these values based on your cloud provider's pricing.
 cpu_cost_per_hour = 0.03
 mem_gb_cost_per_hour = 0.004
 ingress_cost_per_gib = 0
 egress_cost_per_gib = 0.012
-
-nanos_per_hour = 60*60*1000*1000*1000
-bytes_per_gb = 1024 * 1024 * 1024
 
 
 def hourly_cpu_mem_by_service():
@@ -18,8 +19,7 @@ def hourly_cpu_mem_by_service():
     # Add K8s context using the table record's UPID.
     df.service = df.ctx['service']
 
-    # Group data by unique pairs of the 'service' 'upid' columns and calculate
-    # the sum of the 'cpu_utime_ns' and 'cpu_ktime_ns' for each unique grouping.
+    # Calculate CPU and memory usage by each process (UPID) in each service.
     df = df.groupby(['service', 'upid']).agg(
         # The fields below are counters, so we take the min (starting value)
         # and the max (ending value) to subtract them.
@@ -30,16 +30,18 @@ def hourly_cpu_mem_by_service():
         vsize=('vsize_bytes', px.mean),
     )
 
+    # Calculate CPU usage over the time window.
     df.cpu_utime_ns = df.cpu_utime_ns_max - df.cpu_utime_ns_min
     df.cpu_ktime_ns = df.cpu_ktime_ns_max - df.cpu_ktime_ns_min
 
-    # Group by unique service and calculate the sum of CPU time.
+    # Sum usage by service.
     df = df.groupby('service').agg(
         cpu_utime_ns=('cpu_utime_ns', px.sum),
         cpu_ktime_ns=('cpu_ktime_ns', px.sum),
         vsize_bytes=('vsize', px.sum),
     )
 
+    # Calculate total (kernel + user time) CPU used.
     df.cpu_time_ns = px.DurationNanos(df.cpu_ktime_ns + df.cpu_utime_ns)
     df.mem_gb = df.vsize_bytes / bytes_per_gb
 
@@ -48,6 +50,7 @@ def hourly_cpu_mem_by_service():
 
 def yearly_cpu_mem_cost_by_service():
     df = hourly_cpu_mem_by_service()
+    # Estimate yearly usage based on last hour of usage.
     df.cpu_time_frac_hour = df.cpu_time_ns / nanos_per_hour
     df.cpu_cost_per_year = df.cpu_time_frac_hour * cpu_cost_per_hour * 24 * 365
     df.mem_cost_per_year = df.mem_gb * mem_gb_cost_per_hour * 24 * 365
@@ -56,6 +59,7 @@ def yearly_cpu_mem_cost_by_service():
 
 def yearly_cpu_mem_cost():
     df = yearly_cpu_mem_cost_by_service()
+    # Calcualte yearly cost across all services.
     return df.agg(
        cpu_cost_per_year=('cpu_cost_per_year', px.sum),
        mem_cost_per_year=('mem_cost_per_year', px.sum),

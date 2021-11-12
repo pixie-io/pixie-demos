@@ -1,6 +1,8 @@
 import px
 
 bytes_per_gb = 1024 * 1024 * 1024
+
+# Adjust these values based on your cloud provider's pricing.
 ingress_cost_per_gib = 0
 egress_cost_per_gib = 0.012
 
@@ -14,23 +16,25 @@ def hourly_egress_by_pod():
     # Add K8s context using the table record's UPID.
     df.service = df.ctx['service']
 
-    # Filter out anything where anything remote_addr resolves a pod
+    # Fitler for external traffic only (i.e. remote_addr does not resolve to a pod)
     df.remote_addr_pod = px.pod_id_to_pod_name(px.ip_to_pod_id(df.remote_addr))
     df = df[df.remote_addr_pod == '']
 
-    # Find min/max bytes transferred over the selected time window per pod.
+    # Calculate network usage for each service.
     df = df.groupby('service').agg(
+        # The fields below are counters, so we take the min (starting value)
+        # and the max (ending value) to subtract them.
         bytes_recv_min=('bytes_recv', px.min),
         bytes_recv_max=('bytes_recv', px.max),
         bytes_sent_min=('bytes_sent', px.min),
         bytes_sent_max=('bytes_sent', px.max),
     )
 
-    # Calculate bytes transferred over the time window
+    # Calculate bytes transferred over the time window.
     df.bytes_sent = df.bytes_sent_max - df.bytes_sent_min
     df.bytes_recv = df.bytes_recv_max - df.bytes_recv_min
 
-    # Sum network traffic per unique pair of 'service' and 'pod'.
+    # Sum network traffic by service.
     df = df.groupby('service').agg(
         bytes_sent=('bytes_sent', px.sum),
         bytes_recv=('bytes_recv', px.sum),
@@ -42,6 +46,7 @@ def hourly_egress_by_pod():
 
 def yearly_egress_cost_by_service():
     df = hourly_egress_by_pod()
+    # Estimate yearly usage based on last hour of usage.
     df.egress_cost_per_year = df.gb_egress * 24 * 365 * egress_cost_per_gib
     df.ingress_cost_per_year = df.gb_ingress * 24 * 365 * ingress_cost_per_gib
     df.network_cost_per_year = df.egress_cost_per_year + df.ingress_cost_per_year
@@ -50,6 +55,7 @@ def yearly_egress_cost_by_service():
 
 def yearly_egress_cost():
     df = yearly_egress_cost_by_service()
+    # Calcualte yearly network cost across all services.
     return df.agg(
        network_cost_per_year=('network_cost_per_year', px.sum)
     )

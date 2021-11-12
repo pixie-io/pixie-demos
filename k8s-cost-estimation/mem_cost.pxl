@@ -1,6 +1,8 @@
 import px
 
 bytes_per_gb = 1024 * 1024 * 1024
+
+# Adjust this value based on your cloud provider's pricing.
 mem_gb_cost_per_hour = 0.004
 
 
@@ -13,12 +15,12 @@ def hourly_mem_by_service():
     # Add K8s context using the table record's UPID.
     df.service = df.ctx['service']
 
-    # Calculate usage by process (UPID) in each K8s object.
+    # Calculate memory usage by each process (UPID) in each service.
     df = df.groupby(['service', 'upid']).agg(
         vsize=('vsize_bytes', px.mean),
     )
 
-    # Sum memory metrics per unique pairs of 'service'.
+    # Sum memory time by service.
     df = df.groupby('service').agg(
         vsize_bytes=('vsize', px.sum),
     )
@@ -28,12 +30,14 @@ def hourly_mem_by_service():
 
 def yearly_mem_cost_by_service():
     df = hourly_mem_by_service()
+    # Estimate yearly usage based on last hour of usage.
     df.mem_cost_per_year = df.mem_gb * mem_gb_cost_per_hour * 24 * 365
     return df[['service', 'mem_cost_per_year']]
 
 
 def yearly_mem_cost():
     df = yearly_mem_cost_by_service()
+    # Calcualte yearly CPU cost across all services.
     return df.agg(
         mem_cost_per_year=('mem_cost_per_year', px.sum)
     )
