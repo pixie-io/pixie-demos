@@ -5,12 +5,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -62,7 +62,7 @@ const int kEventTypeSyscallCloseEvent = 3;
 
 // BPF programs are limited to a 512-byte stack. We store this value per CPU
 // and use it as a heap allocated value.
-BPF_PERCPU_ARRAY(write_buffer_heap, struct syscall_write_event_t, 1);      
+BPF_PERCPU_ARRAY(write_buffer_heap, struct syscall_write_event_t, 1);
 
 // The set of file descriptors we are tracking.
 BPF_HASH(active_fds, int, bool);
@@ -147,10 +147,12 @@ int syscall__probe_write(struct pt_regs *ctx, int fd, const void* buf, size_t co
       return 0;
   }
 
+  /*
   if (active_fds.lookup(&fd) == NULL) {
     // Bail early if we aren't tracking fd.
     return 0;
   }
+	*/
 
   event->attr.fd = fd;
   event->attr.bytes = count;
@@ -180,7 +182,7 @@ int syscall__probe_close(struct pt_regs *ctx, int fd) {
   if (event == NULL) {
     return 0;
   }
-  
+
   event->attr.event_type = kEventTypeSyscallCloseEvent;
   event->attr.fd = fd;
   event->attr.bytes = 0;

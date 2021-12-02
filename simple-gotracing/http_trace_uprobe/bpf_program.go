@@ -5,18 +5,20 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package main
 
+// This does not work for Golang programs built with 1.17 or newer toolchain. Go 1.17 uses a register-based calling
+// convention for which the BPF code here cannot handle.
 const bpfProgram = `
 #include <uapi/linux/ptrace.h>
 /***********************************************************
@@ -48,104 +50,106 @@ struct golang_http_response_event_t {
 };
 
 int probe_golang_http_response(struct pt_regs *ctx) {
-    struct golang_http_response_event_t event = {};
+  bpf_trace_printk("probe_golang_http_response()\n");
 
-    // Positions within stack frame:
-    u64 struct_response_pos = 5;
+	struct golang_http_response_event_t event = {};
 
-    // Positions within struct response object:
-    u64 req_ptr_pos = 1;
-    u64 bufio_ptr_pos = 6;
-    u64 content_length_pos = 13;
-    u64 status_code_pos = 14;
+	// Positions within stack frame:
+	u64 struct_response_pos = 5;
 
-    // Positions within struct request object:
-    u64 method_ptr_pos = 0;
-    u64 method_len_pos = 1;
-    u64 uri_ptr_pos = 24;
-    u64 uri_len_pos = 25;
+	// Positions within struct response object:
+	u64 req_ptr_pos = 1;
+	u64 bufio_ptr_pos = 6;
+	u64 content_length_pos = 13;
+	u64 status_code_pos = 14;
 
-    // Positions within bufio.Writer object:
-    u64 buf_ptr_pos = 2;
-    u64 array_ptr_pos = buf_ptr_pos + 0;
-    u64 array_len_pos = buf_ptr_pos + 1;
+	// Positions within struct request object:
+	u64 method_ptr_pos = 0;
+	u64 method_len_pos = 1;
+	u64 uri_ptr_pos = 24;
+	u64 uri_len_pos = 25;
 
-    //------- Reponse struct information.
+	// Positions within bufio.Writer object:
+	u64 buf_ptr_pos = 2;
+	u64 array_ptr_pos = buf_ptr_pos + 0;
+	u64 array_len_pos = buf_ptr_pos + 1;
 
-    // Read pointer to response struct (function's receiver, aka 'this' object).
-    void* struct_response_ptr = NULL;
-    bpf_probe_read(&struct_response_ptr, sizeof(struct_response_ptr), (void *)ctx->sp+(struct_response_pos*8));
-    event.msg_len = (u64)struct_response_ptr;
+	//------- Reponse struct information.
 
-    //------- Request pointer information.
+	// Read pointer to response struct (function's receiver, aka 'this' object).
+	void* struct_response_ptr = NULL;
+	bpf_probe_read(&struct_response_ptr, sizeof(struct_response_ptr), (void *)ctx->sp+(struct_response_pos*8));
+	event.msg_len = (u64)struct_response_ptr;
 
-    // Read req pointer from response struct.
-    void* req_ptr = NULL;
-    bpf_probe_read(&req_ptr, sizeof(req_ptr), struct_response_ptr+(req_ptr_pos*8));
+	//------- Request pointer information.
 
-    // Read bufio pointer from response struct.
-    void* bufio_ptr = NULL;
-    bpf_probe_read(&bufio_ptr, sizeof(bufio_ptr), struct_response_ptr+(bufio_ptr_pos*8));
+	// Read req pointer from response struct.
+	void* req_ptr = NULL;
+	bpf_probe_read(&req_ptr, sizeof(req_ptr), struct_response_ptr+(req_ptr_pos*8));
 
-    // Read status code from response struct.
-    bpf_probe_read(&event.status_code, sizeof(event.status_code), struct_response_ptr+(status_code_pos*8));
+	// Read bufio pointer from response struct.
+	void* bufio_ptr = NULL;
+	bpf_probe_read(&bufio_ptr, sizeof(bufio_ptr), struct_response_ptr+(bufio_ptr_pos*8));
 
-    // Read bufio pointer from response struct.
-    u64 content_length = 0;
-    bpf_probe_read(&content_length, sizeof(content_length), struct_response_ptr+(content_length_pos*8));
+	// Read status code from response struct.
+	bpf_probe_read(&event.status_code, sizeof(event.status_code), struct_response_ptr+(status_code_pos*8));
 
-    //------- Method pointer information.
+	// Read bufio pointer from response struct.
+	u64 content_length = 0;
+	bpf_probe_read(&content_length, sizeof(content_length), struct_response_ptr+(content_length_pos*8));
 
-    // Read array pointer from buf object.
-    void* method_ptr = 0;
-    bpf_probe_read(&method_ptr, sizeof(method_ptr), req_ptr+(method_ptr_pos*8));
+	//------- Method pointer information.
 
-    // Read array length from buf object.
-    u64 method_len = 0;
-    bpf_probe_read(&method_len, sizeof(method_len), req_ptr+(method_len_pos*8));
+	// Read array pointer from buf object.
+	void* method_ptr = 0;
+	bpf_probe_read(&method_ptr, sizeof(method_ptr), req_ptr+(method_ptr_pos*8));
 
-    // Read array from array pointer object.
-    u64 method_buf_size = sizeof(event.method);
-    method_buf_size = method_buf_size < method_len ? method_buf_size : method_len;
-    bpf_probe_read(&event.method, method_buf_size, method_ptr);
+	// Read array length from buf object.
+	u64 method_len = 0;
+	bpf_probe_read(&method_len, sizeof(method_len), req_ptr+(method_len_pos*8));
 
-    event.method_len = (u64)method_len;
+	// Read array from array pointer object.
+	u64 method_buf_size = sizeof(event.method);
+	method_buf_size = method_buf_size < method_len ? method_buf_size : method_len;
+	bpf_probe_read(&event.method, method_buf_size, method_ptr);
 
-    //------- URI Pointer information.
+	event.method_len = (u64)method_len;
 
-    // Read URI pointer from buf object.
-    void* uri_ptr = 0;
-    bpf_probe_read(&uri_ptr, sizeof(uri_ptr), req_ptr+(uri_ptr_pos*8));
+	//------- URI Pointer information.
 
-    // Read URL length from buf object.
-    u64 uri_len = 0;
-    bpf_probe_read(&uri_len, sizeof(uri_len), req_ptr+(uri_len_pos*8));
+	// Read URI pointer from buf object.
+	void* uri_ptr = 0;
+	bpf_probe_read(&uri_ptr, sizeof(uri_ptr), req_ptr+(uri_ptr_pos*8));
 
-    // Read URI from URI pointer object.
-    u64 uri_buf_size = sizeof(event.uri);
-    uri_buf_size = uri_buf_size < uri_len ? uri_buf_size : uri_len;
-    bpf_probe_read(&event.uri, uri_buf_size, uri_ptr);
+	// Read URL length from buf object.
+	u64 uri_len = 0;
+	bpf_probe_read(&uri_len, sizeof(uri_len), req_ptr+(uri_len_pos*8));
 
-    event.uri_len = (u64)uri_buf_size;
+	// Read URI from URI pointer object.
+	u64 uri_buf_size = sizeof(event.uri);
+	uri_buf_size = uri_buf_size < uri_len ? uri_buf_size : uri_len;
+	bpf_probe_read(&event.uri, uri_buf_size, uri_ptr);
 
-    //------- Array information.
+	event.uri_len = (u64)uri_buf_size;
 
-    // Read array pointer from buf object.
-    void* array_ptr = 0;
-    bpf_probe_read(&array_ptr, sizeof(array_ptr), bufio_ptr+(array_ptr_pos*8));
+	//------- Array information.
 
-    // Read array length from buf object.
-    u64 array_len = 0;
-    bpf_probe_read(&array_len, sizeof(array_len), bufio_ptr+(array_len_pos*8));
+	// Read array pointer from buf object.
+	void* array_ptr = 0;
+	bpf_probe_read(&array_ptr, sizeof(array_ptr), bufio_ptr+(array_ptr_pos*8));
 
-    // Read array from array pointer object.
-    u64 msg_buf_size = sizeof(event.msg);
-    msg_buf_size = msg_buf_size < array_len ? msg_buf_size : array_len;
-    bpf_probe_read(&event.msg, msg_buf_size, array_ptr);
+	// Read array length from buf object.
+	u64 array_len = 0;
+	bpf_probe_read(&array_len, sizeof(array_len), bufio_ptr+(array_len_pos*8));
 
-    // Write snooped arguments to perf ring buffer.
-    golang_http_response_events.perf_submit(ctx, &event, sizeof(event));
+	// Read array from array pointer object.
+	u64 msg_buf_size = sizeof(event.msg);
+	msg_buf_size = msg_buf_size < array_len ? msg_buf_size : array_len;
+	bpf_probe_read(&event.msg, msg_buf_size, array_ptr);
 
-    return 0;
+	// Write snooped arguments to perf ring buffer.
+	golang_http_response_events.perf_submit(ctx, &event, sizeof(event));
+
+	return 0;
 }
 `

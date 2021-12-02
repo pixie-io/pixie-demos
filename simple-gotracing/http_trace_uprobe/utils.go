@@ -63,7 +63,7 @@ func AttachUProbeWithAddr(evName string, attachType uint32, path string, addr ui
 
 	evNameCS := C.CString(evName)
 	binaryPathCS := C.CString(path)
-	res, err := C.bpf_attach_uprobe(C.int(fd), attachType, evNameCS, binaryPathCS, (C.uint64_t)(addr), (C.pid_t)(pid))
+	res, err := C.bpf_attach_uprobe(C.int(fd), attachType, evNameCS, binaryPathCS, (C.uint64_t)(addr), (C.pid_t)(pid), 0 /*ref_ctr_offset*/)
 	C.free(unsafe.Pointer(evNameCS))
 	C.free(unsafe.Pointer(binaryPathCS))
 
