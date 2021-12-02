@@ -22,9 +22,11 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -33,15 +35,19 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/iovisor/gobpf/bcc"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/hpack"
 )
 
 var (
 	tracePID     int
+	parseHttp2   bool
 	printEnabled bool
 )
 
 func init() {
 	flag.IntVar(&tracePID, "pid", -1, "The pid to trace")
+	flag.BoolVar(&parseHttp2, "parseHttp2", false, "If true, parse the data as HTTP2 frames")
 	flag.BoolVar(&printEnabled, "print", true, "Print output")
 }
 
@@ -128,9 +134,15 @@ func (r *requestHandler) HandleBPFEvent(v []byte) {
 			SocketInfo: ev.Msg,
 		}
 	case ETSyscallWrite:
-		if elem, ok := r.FdMap[ev.Attr.Fd]; ok {
-			elem.Buf.Write(ev.Msg)
+		elem, ok := r.FdMap[ev.Attr.Fd]
+		if !ok {
+			elem = &MessageInfo{
+				SocketInfo: ev.Msg,
+			}
+			r.FdMap[ev.Attr.Fd] = elem
 		}
+		log.Println("ETSyscallWrite, msg=%v fd=%d", ev.Msg, ev.Attr.Fd)
+		elem.Buf.Write(ev.Msg)
 	case ETSyscallClose:
 		if msgInfo, ok := r.FdMap[ev.Attr.Fd]; ok {
 			delete(r.FdMap, ev.Attr.Fd)
@@ -144,11 +156,43 @@ func (r *requestHandler) HandleBPFEvent(v []byte) {
 	}
 }
 
-func parseAndPrintMessage(msgInfo *MessageInfo) {
+func formatFrame(f http2.Frame, decoder *hpack.Decoder) string {
+	var buf bytes.Buffer
+	switch f := f.(type) {
+	case *http2.DataFrame:
+		fmt.Fprintf(&buf, "[DATA] %q", f.Data())
+	case *http2.HeadersFrame:
+		fmt.Fprintf(&buf, "[HEADERS]")
+		str := hex.EncodeToString(f.HeaderBlockFragment())
+		log.Println("Hex header code: " + str)
+		hfs, _ := decoder.DecodeFull(f.HeaderBlockFragment())
+		for _, hf := range hfs {
+			fmt.Fprintf(&buf, " %q:%q", hf.Name, hf.Value)
+		}
+	default:
+		fmt.Fprintf(&buf, "[IGNORED] %v", f)
+	}
+	return buf.String()
+}
+
+func parseHttp2Frames(msgInfo *MessageInfo) {
+	framer := http2.NewFramer(ioutil.Discard, &msgInfo.Buf)
+	decoder := hpack.NewDecoder(2048, nil)
+	for {
+		f, err := framer.ReadFrame()
+		if err != nil {
+			log.Println("ReadFrame failed, err=%v", err)
+			break
+		}
+		log.Println(formatFrame(f, decoder))
+	}
+}
+
+func parseHttpMessages(msgInfo *MessageInfo) {
 	// We have the complete request so we try to parse the actual HTTP request.
 	resp, err := http.ReadResponse(bufio.NewReader(&msgInfo.Buf), nil)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to parse request\n")
+		fmt.Fprintf(os.Stderr, "Failed to parse request, err: %v\n", err)
 		return
 	}
 
@@ -162,6 +206,15 @@ func parseAndPrintMessage(msgInfo *MessageInfo) {
 			color.GreenString("%s", resp.Header["Content-Type"]),
 			color.GreenString("%s", string(b)))
 	}
+}
+
+func parseAndPrintMessage(msgInfo *MessageInfo) {
+	log.Println("parseAndPrintMessage")
+	if parseHttp2 {
+		parseHttp2Frames(msgInfo)
+		return
+	}
+	parseHttpMessages(msgInfo)
 }
 
 func main() {
