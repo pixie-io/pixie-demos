@@ -1,0 +1,28 @@
+body {
+  /* Make it look nice */
+  background-color: #282c34;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App {
+  /* Super basic container to fill the page and center contents */
+  width: 100vw;
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+a {
+  color: #61dafb;
+}
+
+main {
+  padding: 2rem;
+  text-align: center;
+  box-sizing: border-box;
+  width: 100%;
+}

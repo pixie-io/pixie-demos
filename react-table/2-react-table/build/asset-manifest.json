@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/pixie-demos/react-table/2-react-table/build/static/css/main.42c8a56d.chunk.css",
+    "main.js": "/pixie-demos/react-table/2-react-table/build/static/js/main.87594b58.chunk.js",
+    "main.js.map": "/pixie-demos/react-table/2-react-table/build/static/js/main.87594b58.chunk.js.map",
+    "runtime-main.js": "/pixie-demos/react-table/2-react-table/build/static/js/runtime-main.d56450fc.js",
+    "runtime-main.js.map": "/pixie-demos/react-table/2-react-table/build/static/js/runtime-main.d56450fc.js.map",
+    "static/js/2.7fa4c899.chunk.js": "/pixie-demos/react-table/2-react-table/build/static/js/2.7fa4c899.chunk.js",
+    "static/js/2.7fa4c899.chunk.js.map": "/pixie-demos/react-table/2-react-table/build/static/js/2.7fa4c899.chunk.js.map",
+    "static/js/3.22ca2655.chunk.js": "/pixie-demos/react-table/2-react-table/build/static/js/3.22ca2655.chunk.js",
+    "static/js/3.22ca2655.chunk.js.map": "/pixie-demos/react-table/2-react-table/build/static/js/3.22ca2655.chunk.js.map",
+    "index.html": "/pixie-demos/react-table/2-react-table/build/index.html",
+    "static/css/main.42c8a56d.chunk.css.map": "/pixie-demos/react-table/2-react-table/build/static/css/main.42c8a56d.chunk.css.map",
+    "static/js/2.7fa4c899.chunk.js.LICENSE.txt": "/pixie-demos/react-table/2-react-table/build/static/js/2.7fa4c899.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.d56450fc.js",
+    "static/js/2.7fa4c899.chunk.js",
+    "static/css/main.42c8a56d.chunk.css",
+    "static/js/main.87594b58.chunk.js"
+  ]
+}

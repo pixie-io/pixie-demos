@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/pixie-demos/react-table/4-column-controls/build/static/css/main.611aeaed.chunk.css",
+    "main.js": "/pixie-demos/react-table/4-column-controls/build/static/js/main.df0ba673.chunk.js",
+    "main.js.map": "/pixie-demos/react-table/4-column-controls/build/static/js/main.df0ba673.chunk.js.map",
+    "runtime-main.js": "/pixie-demos/react-table/4-column-controls/build/static/js/runtime-main.9d7ab708.js",
+    "runtime-main.js.map": "/pixie-demos/react-table/4-column-controls/build/static/js/runtime-main.9d7ab708.js.map",
+    "static/js/2.ce919d20.chunk.js": "/pixie-demos/react-table/4-column-controls/build/static/js/2.ce919d20.chunk.js",
+    "static/js/2.ce919d20.chunk.js.map": "/pixie-demos/react-table/4-column-controls/build/static/js/2.ce919d20.chunk.js.map",
+    "static/js/3.acf92f0f.chunk.js": "/pixie-demos/react-table/4-column-controls/build/static/js/3.acf92f0f.chunk.js",
+    "static/js/3.acf92f0f.chunk.js.map": "/pixie-demos/react-table/4-column-controls/build/static/js/3.acf92f0f.chunk.js.map",
+    "index.html": "/pixie-demos/react-table/4-column-controls/build/index.html",
+    "static/css/main.611aeaed.chunk.css.map": "/pixie-demos/react-table/4-column-controls/build/static/css/main.611aeaed.chunk.css.map",
+    "static/js/2.ce919d20.chunk.js.LICENSE.txt": "/pixie-demos/react-table/4-column-controls/build/static/js/2.ce919d20.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.9d7ab708.js",
+    "static/js/2.ce919d20.chunk.js",
+    "static/css/main.611aeaed.chunk.css",
+    "static/js/main.df0ba673.chunk.js"
+  ]
+}

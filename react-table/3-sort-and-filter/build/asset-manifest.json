@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/pixie-demos/react-table/3-sort-and-filter/build/static/css/main.d666c1a7.chunk.css",
+    "main.js": "/pixie-demos/react-table/3-sort-and-filter/build/static/js/main.0c402462.chunk.js",
+    "main.js.map": "/pixie-demos/react-table/3-sort-and-filter/build/static/js/main.0c402462.chunk.js.map",
+    "runtime-main.js": "/pixie-demos/react-table/3-sort-and-filter/build/static/js/runtime-main.298b9c6d.js",
+    "runtime-main.js.map": "/pixie-demos/react-table/3-sort-and-filter/build/static/js/runtime-main.298b9c6d.js.map",
+    "static/js/2.612c659f.chunk.js": "/pixie-demos/react-table/3-sort-and-filter/build/static/js/2.612c659f.chunk.js",
+    "static/js/2.612c659f.chunk.js.map": "/pixie-demos/react-table/3-sort-and-filter/build/static/js/2.612c659f.chunk.js.map",
+    "static/js/3.f684159d.chunk.js": "/pixie-demos/react-table/3-sort-and-filter/build/static/js/3.f684159d.chunk.js",
+    "static/js/3.f684159d.chunk.js.map": "/pixie-demos/react-table/3-sort-and-filter/build/static/js/3.f684159d.chunk.js.map",
+    "index.html": "/pixie-demos/react-table/3-sort-and-filter/build/index.html",
+    "static/css/main.d666c1a7.chunk.css.map": "/pixie-demos/react-table/3-sort-and-filter/build/static/css/main.d666c1a7.chunk.css.map",
+    "static/js/2.612c659f.chunk.js.LICENSE.txt": "/pixie-demos/react-table/3-sort-and-filter/build/static/js/2.612c659f.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.298b9c6d.js",
+    "static/js/2.612c659f.chunk.js",
+    "static/css/main.d666c1a7.chunk.css",
+    "static/js/main.0c402462.chunk.js"
+  ]
+}

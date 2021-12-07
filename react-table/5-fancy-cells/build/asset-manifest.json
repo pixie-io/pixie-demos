@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/pixie-demos/react-table/5-fancy-cells/build/static/css/main.13a31467.chunk.css",
+    "main.js": "/pixie-demos/react-table/5-fancy-cells/build/static/js/main.310358aa.chunk.js",
+    "main.js.map": "/pixie-demos/react-table/5-fancy-cells/build/static/js/main.310358aa.chunk.js.map",
+    "runtime-main.js": "/pixie-demos/react-table/5-fancy-cells/build/static/js/runtime-main.5a2cac45.js",
+    "runtime-main.js.map": "/pixie-demos/react-table/5-fancy-cells/build/static/js/runtime-main.5a2cac45.js.map",
+    "static/js/2.6db881a1.chunk.js": "/pixie-demos/react-table/5-fancy-cells/build/static/js/2.6db881a1.chunk.js",
+    "static/js/2.6db881a1.chunk.js.map": "/pixie-demos/react-table/5-fancy-cells/build/static/js/2.6db881a1.chunk.js.map",
+    "static/js/3.acf92f0f.chunk.js": "/pixie-demos/react-table/5-fancy-cells/build/static/js/3.acf92f0f.chunk.js",
+    "static/js/3.acf92f0f.chunk.js.map": "/pixie-demos/react-table/5-fancy-cells/build/static/js/3.acf92f0f.chunk.js.map",
+    "index.html": "/pixie-demos/react-table/5-fancy-cells/build/index.html",
+    "static/css/main.13a31467.chunk.css.map": "/pixie-demos/react-table/5-fancy-cells/build/static/css/main.13a31467.chunk.css.map",
+    "static/js/2.6db881a1.chunk.js.LICENSE.txt": "/pixie-demos/react-table/5-fancy-cells/build/static/js/2.6db881a1.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.5a2cac45.js",
+    "static/js/2.6db881a1.chunk.js",
+    "static/css/main.13a31467.chunk.css",
+    "static/js/main.310358aa.chunk.js"
+  ]
+}
