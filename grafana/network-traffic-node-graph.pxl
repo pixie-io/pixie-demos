@@ -1,0 +1,113 @@
+# Copyright 2018- The Pixie Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+'''
+This query outputs a graph of the network connections to, from and
+within your cluster. Use this query with Grafana's Node Graph panel.
+
+This query is for use with Grafana's Pixie Datasource Plugin only,
+as it uses Grafana macros for adding Grafana dashboard context.
+This query is a modification of the px/net_flow_graph script:
+https://github.com/pixie-io/pixie/tree/main/src/pxl_scripts/px/net_flow_graph
+'''
+
+# Import Pixie's module for querying data.
+import px
+
+
+def net_flow_graph():
+    df = px.DataFrame(table='conn_stats', start_time=__time_from)
+
+    # Add context
+    df.namespace = df.ctx['namespace']
+    df.service = df.ctx['service']
+    df.node = df.ctx['node']
+    df.pod = df.ctx['pod']
+
+    # Filter out any non k8s sources.
+    df = df[df.pod != '']
+
+    # Filter for client side requests.
+    df = df[df.trace_role == 1]
+
+    # Use aggregate to pick the first and last sample for any given client-server pair.
+    # We do this by picking the min/max of the stats, since they are all counters.
+    df = df.groupby(['pod', 'upid', 'remote_addr']).agg(
+        bytes_sent_min=('bytes_sent', px.min),
+        bytes_sent_max=('bytes_sent', px.max),
+        bytes_recv_min=('bytes_recv', px.min),
+        bytes_recv_max=('bytes_recv', px.max),
+    )
+    df.bytes_sent = df.bytes_sent_max - df.bytes_sent_min
+    df.bytes_recv = df.bytes_recv_max - df.bytes_recv_min
+    df.bytes_total = df.bytes_sent + df.bytes_recv
+    df = df.drop(['bytes_sent_max', 'bytes_sent_min', 'bytes_recv_max', 'bytes_recv_min'])
+
+    # To create a graph, add 'from' and 'to' entities.
+    df.from_entity = df.pod
+    df.to_entity = px.nslookup(df.remote_addr)
+
+    # Since there may be multiple processes per pod,
+    # perform an additional aggregation to consolidate those into one entry.
+    df = df.groupby(['from_entity', 'to_entity']).agg(
+        bytes_sent=('bytes_sent', px.sum),
+        bytes_recv=('bytes_recv', px.sum),
+        bytes_total=('bytes_total', px.sum),
+    )
+
+    # Convert to kilobytes.
+    df.kbytes_sent = df.bytes_sent / 1000
+    df.kbytes_recv = df.bytes_recv / 1000
+    df.kbytes_total = df.bytes_total / 1000
+
+    # # Add optional filters:
+    # df = df[px.contains(df.from_entity, 'px-sock-shop')]
+    # df = df[px.contains(df.to_entity, '')]
+
+    return df
+
+
+# Construct the nodes table for the Node Graph panel.
+# https://grafana.com/docs/grafana/next/visualizations/node-graph/#node-parameters
+def nodes():
+    df1 = net_flow_graph()
+    df1.id = df1.to_entity
+    df1.title = df1.to_entity
+    df1 = df1.groupby(['id', 'title']).agg()
+    df2 = net_flow_graph()
+    df2.id = df2.from_entity
+    df2.title = df2.from_entity
+    df2 = df2.groupby(['id', 'title']).agg()
+    return df1.append(df2)
+
+
+# Construct the edges table for the Node Graph panel.
+# https://grafana.com/docs/grafana/next/visualizations/node-graph/#edge-parameters
+def edges():
+    df = net_flow_graph()
+    df.source = df.from_entity
+    df.target = df.to_entity
+    df.id = df.source + '-' + df.target
+    df.mainStat = df.kbytes_sent
+    df.secondaryStat = df.kbytes_recv
+    return df[['id', 'source', 'target', 'mainStat', 'secondaryStat']]
+
+
+# Display the tables.
+nodes_table = nodes()
+edges_table = edges()
+px.display(nodes_table, "nodes")
+px.display(edges_table, "edges")

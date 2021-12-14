@@ -83,6 +83,7 @@ def inbound_conns():
         bytes_recv=('bytes_recv', px.sum),
     )
 
+    # Convert to kilobytes.
     df.kbytes_sent = df.bytes_sent / 1000
     df.kbytes_recv = df.bytes_recv / 1000
     df.kbytes_total = df.kbytes_sent + df.kbytes_recv
