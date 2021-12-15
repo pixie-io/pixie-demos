@@ -34,7 +34,7 @@ Demo project to accompany the [Detect SQL injections with Pixie](https://blog.px
 
 ## react-table
 
-Demo project to accompany the [Tables are Hard, Part 2: Basics](https://blog.px.dev/tables-are-hard-2) blog post. Interactive demo: [github.io](https://pixie-io.github.io/pixie-demos/react-table).
+Demo project to accompany the [Tables are Hard, Part 2: Building a Simple Data Table in React](https://blog.px.dev/tables-are-hard-2) blog post. Interactive demo: [github.io](https://pixie-io.github.io/pixie-demos/react-table).
 
 # Have questions? Need help?
 
