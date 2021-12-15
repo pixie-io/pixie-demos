@@ -32,6 +32,10 @@ Demo project to accompany the [Slack Alerts using the Pixie API](https://docs.pi
 
 Demo project to accompany the [Detect SQL injections with Pixie](https://blog.px.dev/sql-injection/) blog post. This demo shows how to use Pixie to detect SQL injections on a Kubernetes application.
 
+## react-table
+
+Demo project to accompany the [Tables are Hard, Part 2: Building a Simple Data Table in React](https://blog.px.dev/tables-are-hard-2) blog post. Interactive demo: [github.io](https://pixie-io.github.io/pixie-demos/react-table).
+
 # Have questions? Need help?
 
 Please reach out on our Pixie Community [Slack](https://slackin.px.dev/) or file a GitHub issue.
