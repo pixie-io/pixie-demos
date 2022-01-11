@@ -12,7 +12,7 @@ Want to deprecate an API? Use [Pixie](https://github.com/pixie-io/pixie) to quic
 - If you don't already have one, set up a [Kubernetes cluster](https://docs.px.dev/installing-pixie/setting-up-k8s/).
 - [Install Pixie](https://docs.px.dev/installing-pixie/install-guides/) to your Kubernetes cluster.
 - Install the [Pixie CLI](https://docs.px.dev/installing-pixie/install-schemes/cli/#1.-install-the-pixie-cli) if you didn't install it in order to deploy Pixie in the step above.
-- Git clone this repository and `cd` into the `endpoint-deprecation` folder.
+- git clone this repository and `cd` into the `endpoint-deprecation` folder.
 
 ## Test Application
 
@@ -105,10 +105,6 @@ PxL scripts can be run using the [CLI](https://docs.px.dev/using-pixie/using-cli
 - Copy the contents of the `vis.json` file into the “Vis Spec” tab of the script editor.
 - Run the script using the RUN button in the top right or using the `ctrl+enter` (Windows, Linux) or `cmd+enter` (Mac) shortcut.
 - Hide the script editor using `ctrl+e` (Windows, Linux) or `cmd+e` (Mac).
-
-## A Note on Data Retention
-
-Note that the PxL scripts above only examine the last 30 minutes of traffic. This time window can be extended by changing the `start_time` variable (e.g. to use `-3h`). For more information on how much data Pixie stores, see the [reference docs](https://docs.px.dev/about-pixie/faq#how-much-data-does-pixie-store).
 
 ## Bugs & Features
 
