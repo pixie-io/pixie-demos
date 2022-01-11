@@ -134,15 +134,9 @@ func (r *requestHandler) HandleBPFEvent(v []byte) {
 			SocketInfo: ev.Msg,
 		}
 	case ETSyscallWrite:
-		elem, ok := r.FdMap[ev.Attr.Fd]
-		if !ok {
-			elem = &MessageInfo{
-				SocketInfo: ev.Msg,
-			}
-			r.FdMap[ev.Attr.Fd] = elem
+		if elem, ok := r.FdMap[ev.Attr.Fd]; ok {
+			elem.Buf.Write(ev.Msg)
 		}
-		log.Println("ETSyscallWrite, msg=%v fd=%d", ev.Msg, ev.Attr.Fd)
-		elem.Buf.Write(ev.Msg)
 	case ETSyscallClose:
 		if msgInfo, ok := r.FdMap[ev.Attr.Fd]; ok {
 			delete(r.FdMap, ev.Attr.Fd)
@@ -153,6 +147,26 @@ func (r *requestHandler) HandleBPFEvent(v []byte) {
 			fmt.Fprintf(os.Stderr, "Missing request with FD: %d\n", ev.Attr.Fd)
 			return
 		}
+	}
+}
+
+func parseHttpMessages(msgInfo *MessageInfo) {
+	// We have the complete request so we try to parse the actual HTTP request.
+	resp, err := http.ReadResponse(bufio.NewReader(&msgInfo.Buf), nil)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to parse request, err: %v\n", err)
+		return
+	}
+
+	if printEnabled {
+		body := resp.Body
+		b, _ := ioutil.ReadAll(body)
+		body.Close()
+		fmt.Printf("StatusCode: %s, Len: %s, ContentType: %s, Body: %s\n",
+			color.GreenString("%d", resp.StatusCode),
+			color.GreenString("%d", resp.ContentLength),
+			color.GreenString("%s", resp.Header["Content-Type"]),
+			color.GreenString("%s", string(b)))
 	}
 }
 
@@ -188,28 +202,7 @@ func parseHttp2Frames(msgInfo *MessageInfo) {
 	}
 }
 
-func parseHttpMessages(msgInfo *MessageInfo) {
-	// We have the complete request so we try to parse the actual HTTP request.
-	resp, err := http.ReadResponse(bufio.NewReader(&msgInfo.Buf), nil)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to parse request, err: %v\n", err)
-		return
-	}
-
-	if printEnabled {
-		body := resp.Body
-		b, _ := ioutil.ReadAll(body)
-		body.Close()
-		fmt.Printf("StatusCode: %s, Len: %s, ContentType: %s, Body: %s\n",
-			color.GreenString("%d", resp.StatusCode),
-			color.GreenString("%d", resp.ContentLength),
-			color.GreenString("%s", resp.Header["Content-Type"]),
-			color.GreenString("%s", string(b)))
-	}
-}
-
 func parseAndPrintMessage(msgInfo *MessageInfo) {
-	log.Println("parseAndPrintMessage")
 	if parseHttp2 {
 		parseHttp2Frames(msgInfo)
 		return
