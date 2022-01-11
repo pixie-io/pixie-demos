@@ -21,7 +21,7 @@
 import px
 
 
-def endpoints(start_time: str, service: px.Service, endpoint: str, max_num_records: int):
+def endpoints(start_time: str, service: px.Service, endpoint: str):
 
     df = px.DataFrame(table='http_events', start_time=start_time)
 
@@ -40,11 +40,8 @@ def endpoints(start_time: str, service: px.Service, endpoint: str, max_num_recor
     df = add_source_dest_columns(df)
     df = add_source_dest_links(df, start_time)
 
-    # Restrict number of results.
-    df = df.head(max_num_records)
-
     # Order columns.
-    df = df['time_', 'source', 'req_path', 'latency', 'major_version',
+    df = df['service', 'time_', 'source', 'req_path', 'latency', 'major_version',
             'req_method', 'req_headers', 'req_body', 'req_body_size', 'resp_status',
             'resp_message', 'resp_headers', 'resp_body', 'resp_body_size']
 

@@ -21,7 +21,7 @@
 import px
 
 
-def endpoints(start_time: str, service: px.Service, endpoint: str, max_num_records: int):
+def endpoints(start_time: str, service: px.Service, endpoint: str):
 
     df = px.DataFrame(table='http_events', start_time=start_time)
 

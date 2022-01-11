@@ -64,7 +64,7 @@ def endpoints(start_time: str, service: px.Service):
     df = request_path_endpoint_clustering(df)
 
     # Compute HTTP LET metrics.
-    df = df.groupby(['endpoint']).agg(
+    df = df.groupby(['service', 'endpoint']).agg(
         throughput_total=('latency', px.count),
         error_count=('failure', px.sum),
         latency_quantiles=('latency', px.quantiles)
@@ -85,7 +85,7 @@ def endpoints(start_time: str, service: px.Service):
         'endpoint': df.endpoint,
     })
 
-    return df[['endpoint', 'latency_p90', 'error_rate', 'throughput', 'throughput_total']]
+    return df[['service', 'endpoint', 'latency_p90', 'error_rate', 'throughput', 'throughput_total']]
 
 
 def endpoint_let_helper(start_time: str, service: px.Service):

@@ -12,6 +12,7 @@ Want to deprecate an API? Use [Pixie](https://github.com/pixie-io/pixie) to quic
 - If you don't already have one, set up a [Kubernetes cluster](https://docs.px.dev/installing-pixie/setting-up-k8s/).
 - [Install Pixie](https://docs.px.dev/installing-pixie/install-guides/) to your Kubernetes cluster.
 - Install the [Pixie CLI](https://docs.px.dev/installing-pixie/install-schemes/cli/#1.-install-the-pixie-cli) if you didn't install it in order to deploy Pixie in the step above.
+- Git clone this repository and `cd` into the `endpoint-deprecation` folder.
 
 ## Test Application
 
@@ -42,33 +43,35 @@ for i in {1..15}; do
 hey -H "Referer:https://example.com/" -H "API-KEY:abcdef12345" -n 550 "http://${ECHO_SERVICE_IP}/v1/catalog/"
 hey -H "Referer:https://px.dev/" -H "API-KEY:lkjlsdfsdfs" -n 50 "http://${ECHO_SERVICE_IP}/v1/catalog/$(uuidgen)/details"
 hey -H "Referer:https://example.com/" -H "API-KEY:abcdef12345" -n 50 "http://${ECHO_SERVICE_IP}/v1/catalog/$(uuidgen)/details"
-hey -H "Referer:https://google.com/" -H "API-KEY:sdfsdfsdfsd" -n 50 "http://${ECHO_SERVICE_IP}/v1/catalog/$(uuidgen)/details"
+hey -H "Referer:https://example.com/" -H "API-KEY:sdfsdfsdfsd" -n 50 "http://${ECHO_SERVICE_IP}/v1/catalog/$(uuidgen)/details"
 hey -H "Referer:https://google.com/" -H "API-KEY:sdfsdfsdfsd" -n 50 "http://${ECHO_SERVICE_IP}/v2/catalog/$(uuidgen)"
 done
 ```
 
 ## Service Traffic Clustered by Logical Endpoint
 
-Copy the `service_endpoints_summary` folder locally, then run:
+From the top-level `endpoint-deprecation` folder, run:
 
 ```
-px live -f service_endpoints_summary -- -start_time '-30m' -service 'default'
+px live -f service_endpoints_summary -- -start_time '-30m' -service 'default/echo-service'
 ```
+
+This PxL sript takes a `service` argument. Note that Pixie formats service names in the `<namespace>/<service>` format.
 
 <img src=".readme_assets/service_endpoints_summary.png" alt="Overview of endpoints for a service.">
 
 To see timeseries graphs for endpoint latency, error and throughput, run the following command and then click the `Live View` link at the top:
 
 ```
-px live pxbeta/service_endpoints -- -start_time '-30m' -service 'default'
+px live pxbeta/service_endpoints -- -start_time '-30m' -service 'default/echo-service'
 ```
 
 ## Full-body HTTP/2 Requests for the Specified Endpoint
 
-Copy the `service_endpoint_requests` folder locally, then run:
+From the top-level `endpoint-deprecation` folder, run:
 
 ```
-px live -f service_endpoint_requests -- -start_time '-30m' -service 'default' -endpoint '/v1/catalog/*/details' -max_num_records 1000
+px live -f service_endpoint_requests -- -start_time '-30m' -service 'default/echo-service' -endpoint '/v1/catalog/*/details'
 ```
 
 <img src=".readme_assets/service_endpoint_requests.png" alt="Sample of requests sent to an endpoint.">
@@ -77,10 +80,10 @@ To inspect truncated table cells (e.g. `req_headers`), select the cell then pres
 
 ## A List of Unique Request Header Field Values
 
-Copy the `unique_req_header_values` folder locally, then run:
+From the top-level `endpoint-deprecation` folder, run:
 
 ```
-px live -f unique_req_header_values -- -start_time '-30m' -service 'default' -endpoint '/v1/catalog/*/details'
+px live -f unique_req_header_values -- -start_time '-30m' -service 'default/echo-service' -endpoint '/v1/catalog/*/details'
 ```
 
 <img src=".readme_assets/unique_req_header_values.png" alt="List of unique request header field values.">
@@ -105,7 +108,7 @@ PxL scripts can be run using the [CLI](https://docs.px.dev/using-pixie/using-cli
 
 ## A Note on Data Retention
 
-Note that the PxL scripts above only examine the last 30 minutes of traffic. This time window can be extended by changing the `start_time` variable (e.g. to use `-3h`). Pixie stores collected data locally on the nodes in your cluster, so data retention is limited to 24 hours or less (depending on the volume of traffic your cluster sees). For more visibility, use [Pixie’s API](https://docs.px.dev/using-pixie/api-quick-start/) to routinely scan for endpoint traffic and log the results (or send a [Slackbot alert](https://docs.px.dev/tutorials/integrations/slackbot-alert/)).
+Note that the PxL scripts above only examine the last 30 minutes of traffic. This time window can be extended by changing the `start_time` variable (e.g. to use `-3h`). For more information on how much data Pixie stores, see the [reference docs](https://docs.px.dev/about-pixie/faq#how-much-data-does-pixie-store).
 
 ## Bugs & Features
 

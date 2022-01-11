@@ -9,20 +9,12 @@
       {
           "name": "service",
           "type": "PX_SERVICE",
-          "description": "The name of the service to get stats for.",
-          "defaultValue": "default"
+          "description": "The name of the service to get stats for. Format: namespace/svc_name"
       },
       {
           "name": "endpoint",
           "type": "PX_STRING",
-          "description": "The endpoint to look at stats for. Format: /path/to/endpoint/*/more/path ",
-          "defaultValue": "/"
-      },
-      {
-          "name": "max_num_records",
-          "type": "PX_INT64",
-          "description": "Max number of records to show.",
-          "defaultValue": "1000"
+          "description": "The endpoint to look at stats for. Format: /path/to/endpoint/*/more/path "
       }
   ],
   "globalFuncs": [],
@@ -49,10 +41,6 @@
                   {
                       "name": "endpoint",
                       "variable": "endpoint"
-                  },
-                  {
-                    "name": "max_num_records",
-                    "variable": "max_num_records"
                   }
               ]
           },
