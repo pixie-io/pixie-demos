@@ -1,5 +1,14 @@
 # pixie-demos
 
+## api-deprecation
+
+Want to deprecate an API? Use [Pixie](https://github.com/pixie-io/pixie) to quickly determine:
+
+- Is this endpoint used?
+- Who is using this endpoint?
+
+[Can I deprecate this endpoint?]( https://blog.px.dev/api-deprecation) is the accompanying blog post for this demo.
+
 ## custom-k8s-metrics-demo
 
 This demo project shows how to use Pixie to autoscale the number of pods in your Kubernetes deployment based on request throughput, without any code changes. [Horizontal Pod Autoscaling with Custom Metrics in Kubernetes](https://blog.px.dev/autoscaling-custom-k8s-metric) is the accompanying blog post.

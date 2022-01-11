@@ -1,0 +1,4 @@
+---
+short: Service Endpoints Summary
+long: >
+  This script gets an overview of the endpoints for a service, summarizing their request statistics.

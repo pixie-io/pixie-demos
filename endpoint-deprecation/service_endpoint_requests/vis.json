@@ -1,0 +1,64 @@
+{
+  "variables": [
+      {
+          "name": "start_time",
+          "type": "PX_STRING",
+          "description": "The relative start time of the window. Current time is assumed to be now",
+          "defaultValue": "-5m"
+      },
+      {
+          "name": "service",
+          "type": "PX_SERVICE",
+          "description": "The name of the service to get stats for.",
+          "defaultValue": "default"
+      },
+      {
+          "name": "endpoint",
+          "type": "PX_STRING",
+          "description": "The endpoint to look at stats for. Format: /path/to/endpoint/*/more/path ",
+          "defaultValue": "/"
+      },
+      {
+          "name": "max_num_records",
+          "type": "PX_INT64",
+          "description": "Max number of records to show.",
+          "defaultValue": "1000"
+      }
+  ],
+  "globalFuncs": [],
+  "widgets": [
+      {
+          "name": "Sample of Endpoint Requests",
+          "position": {
+              "x": 0,
+              "y": 0,
+              "w": 12,
+              "h": 3
+          },
+          "func": {
+              "name": "endpoints",
+              "args": [
+                  {
+                      "name": "start_time",
+                      "variable": "start_time"
+                  },
+                  {
+                      "name": "service",
+                      "variable": "service"
+                  },
+                  {
+                      "name": "endpoint",
+                      "variable": "endpoint"
+                  },
+                  {
+                    "name": "max_num_records",
+                    "variable": "max_num_records"
+                  }
+              ]
+          },
+          "displaySpec": {
+              "@type": "types.px.dev/px.vispb.Table"
+          }
+      }
+  ]
+}
