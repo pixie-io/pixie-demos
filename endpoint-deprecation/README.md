@@ -66,15 +66,15 @@ To see timeseries graphs for endpoint latency, error and throughput, run the fol
 px live pxbeta/service_endpoints -- -start_time '-30m' -service 'default/echo-service'
 ```
 
-## Full-body HTTP/2 Requests for the Specified Service
+## Full-body HTTP/2 Requests for a Specified Service
 
-To see all traffic to a service (without endpoint filtering), run:
+From the top-level `endpoint-deprecation` folder, run:
 
 ```
-px live px/http_data -- -start_time '-30m' -destination_filter 'default/echo-service'
+px live -f service_requests -- -start_time '-30m' -service 'default/echo-service'
 ```
 
-## Full-body HTTP/2 Requests for the Specified Logical Endpoint
+## Full-body HTTP/2 Requests for a Specified Logical Endpoint
 
 From the top-level `endpoint-deprecation` folder, run:
 

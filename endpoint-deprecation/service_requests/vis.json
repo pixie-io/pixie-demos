@@ -10,18 +10,12 @@
           "name": "service",
           "type": "PX_SERVICE",
           "description": "The name of the service to get stats for. Format: namespace/svc_name"
-      },
-      {
-          "name": "endpoint",
-          "type": "PX_STRING",
-          "description": "The endpoint to look at stats for. Format: /path/to/endpoint/*/more/path ",
-          "defaultValue": ""
       }
   ],
   "globalFuncs": [],
   "widgets": [
       {
-          "name": "Endpoint Requests",
+          "name": "Serivce Requests",
           "position": {
               "x": 0,
               "y": 0,
@@ -38,10 +32,6 @@
                   {
                       "name": "service",
                       "variable": "service"
-                  },
-                  {
-                      "name": "endpoint",
-                      "variable": "endpoint"
                   }
               ]
           },

@@ -16,12 +16,12 @@
 
 ''' Service Endpoints Requests
 
- This script shows requests made to a service endpoint.
+ This script shows a sample of the requests made to a service endpoint.
 '''
 import px
 
 
-def endpoints(start_time: str, service: px.Service, endpoint: str):
+def endpoints(start_time: str, service: px.Service):
 
     df = px.DataFrame(table='http_events', start_time=start_time)
 
@@ -32,9 +32,6 @@ def endpoints(start_time: str, service: px.Service, endpoint: str):
     # Filter for service.
     df.service = df.ctx['service']
     df = df[px.contains(df.service, service)]
-
-    # Filter for endpoint.
-    df = df[px._match_endpoint(df.req_path, endpoint)]
 
     # Add columns for request source and destination.
     df = add_source_dest_columns(df)
