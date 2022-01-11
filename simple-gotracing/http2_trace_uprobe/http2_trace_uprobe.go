@@ -29,23 +29,25 @@ import (
 	"github.com/iovisor/gobpf/bcc"
 )
 
-const HeaderFieldStrSize = 128
+const headerFieldStrSize = 128
 
-type HeaderField struct {
+type headerField struct {
 	Size uint32
-	Msg  [HeaderFieldStrSize]byte
+	Msg  [headerFieldStrSize]byte
 }
 
-type HTTP2HeaderEvent struct {
-	Name  HeaderField
-	Value HeaderField
+// http2HeaderEvent's memory layout is identical to the go_grpc_http2_header_event_t in bpf_program.go, such that the
+// event data obtained from the perf buffer can be directly copied to http2HeaderEvent.
+type http2HeaderEvent struct {
+	Name  headerField
+	Value headerField
 }
 
-func formatHeaderField(field HeaderField) string {
+func formatHeaderField(field headerField) string {
 	return string(field.Msg[0:field.Size])
 }
 
-func formatHeaderEvent(event HTTP2HeaderEvent) string {
+func formatHeaderEvent(event http2HeaderEvent) string {
 	return fmt.Sprintf("[name='%s' value='%s']", formatHeaderField(event.Name), formatHeaderField(event.Value))
 }
 
@@ -110,7 +112,7 @@ func main() {
 			fmt.Println("Terminating")
 			os.Exit(0)
 		case v := <-ch:
-			var parsed HTTP2HeaderEvent
+			var parsed http2HeaderEvent
 			if err := binary.Read(bytes.NewBuffer(v), bcc.GetHostByteOrder(), &parsed); err != nil {
 				panic(err)
 			}
