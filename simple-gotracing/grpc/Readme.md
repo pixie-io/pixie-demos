@@ -1,5 +1,8 @@
 # gRPC client & server
 
+This directory contains gRPC client & server for demonstrating the kprobe- & uprobe-based HTTP2
+tracers. The following shell commands have to be run from this directory.
+
 ```
 # You might need to install go protobuf plugin: https://grpc.io/docs/languages/go/quickstart/
 # To update protobuf generated go source files:
