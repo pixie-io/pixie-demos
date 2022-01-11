@@ -75,6 +75,20 @@ static void submit_headers(struct pt_regs* ctx, void* fields_ptr, int64_t fields
   }
 }
 
+// Signature: func (l *loopyWriter) writeHeader(uint32, bool, []hpack.HeaderField, ...)
+int probe_loopy_writer_write_header(struct pt_regs* ctx) {
+  const void* sp = (const void*)ctx->sp;
+
+  void* fields_ptr;
+  bpf_probe_read(&fields_ptr, sizeof(void*), sp + 24);
+
+  int64_t fields_len;
+  bpf_probe_read(&fields_len, sizeof(int64_t), sp + 24 + 8);
+
+  submit_headers(ctx, fields_ptr, fields_len);
+  return 0;
+}
+
 // Signature: func (t *http2Server) operateHeaders(frame *http2.MetaHeadersFrame, ...)
 int probe_http2_server_operate_headers(struct pt_regs* ctx) {
   const void* sp = (const void*)ctx->sp;
@@ -87,23 +101,6 @@ int probe_http2_server_operate_headers(struct pt_regs* ctx) {
 
   int64_t fields_len;
   bpf_probe_read(&fields_len, sizeof(int64_t), frame_ptr + 8 + 8);
-
-  submit_headers(ctx, fields_ptr, fields_len);
-  return 0;
-}
-
-// Signature: func (l *loopyWriter) writeHeader(uint32, bool, []hpack.HeaderField, ...)
-int probe_loopy_writer_write_header(struct pt_regs* ctx) {
-  const void* sp = (const void*)ctx->sp;
-
-  void* loopy_writer_ptr;
-  bpf_probe_read(&loopy_writer_ptr, sizeof(void*), sp + 8);
-
-  void* fields_ptr;
-  bpf_probe_read(&fields_ptr, sizeof(void*), sp + 24);
-
-  int64_t fields_len;
-  bpf_probe_read(&fields_len, sizeof(int64_t), sp + 24 + 8);
 
   submit_headers(ctx, fields_ptr, fields_len);
   return 0;
