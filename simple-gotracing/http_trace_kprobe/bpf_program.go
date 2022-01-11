@@ -147,13 +147,6 @@ int syscall__probe_write(struct pt_regs *ctx, int fd, const void* buf, size_t co
       return 0;
   }
 
-  /*
-  if (active_fds.lookup(&fd) == NULL) {
-    // Bail early if we aren't tracking fd.
-    return 0;
-  }
-	*/
-
   event->attr.fd = fd;
   event->attr.bytes = count;
   size_t buf_size = count < sizeof(event->msg) ? count : sizeof(event->msg);
