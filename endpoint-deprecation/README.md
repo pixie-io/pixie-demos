@@ -104,7 +104,7 @@ For more information, check out the [reference docs](https://docs.px.dev/using-p
 
 ## How to Run Scripts in the Live UI
 
-To learn how to run these scripts using the Live UI (instead of the CLI), check out the [reference docs](https://docs.px.dev/tutorials/pxl-scripts/sratch-pad/).
+To learn how to run these scripts using the Live UI (instead of the CLI), check out the [reference docs](https://docs.px.dev/using-pixie/using-live-ui/#using-the-scratch-pad).
 
 ## Bugs & Features
 
