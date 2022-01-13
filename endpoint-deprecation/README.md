@@ -106,6 +106,17 @@ For more information, check out the [reference docs](https://docs.px.dev/using-p
 
 To learn how to run these scripts using the Live UI (instead of the CLI), check out the [reference docs](https://docs.px.dev/using-pixie/using-live-ui/#using-the-scratch-pad).
 
+## Cleanup
+
+```
+# Delete the demo app.
+kubectl delete -f demo-app.yaml
+
+# Delete Pixie.
+px delete
+kubectl delete namespace plc
+```
+
 ## Bugs & Features
 
 Feel free to file a bug or an issue for a feature request. You can also join our [Slack](https://slackin.px.dev/) community.
