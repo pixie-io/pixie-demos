@@ -19,7 +19,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
@@ -27,13 +26,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"strings"
 	"unsafe"
 
-	"github.com/fatih/color"
 	"github.com/iovisor/gobpf/bcc"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/hpack"
@@ -47,7 +44,6 @@ var (
 
 func init() {
 	flag.IntVar(&tracePID, "pid", -1, "The pid to trace")
-	flag.BoolVar(&parseHttp2, "parseHttp2", false, "If true, parse the data as HTTP2 frames")
 	flag.BoolVar(&printEnabled, "print", true, "Print output")
 }
 
@@ -150,26 +146,6 @@ func (r *requestHandler) HandleBPFEvent(v []byte) {
 	}
 }
 
-func parseHttpMessages(msgInfo *MessageInfo) {
-	// We have the complete request so we try to parse the actual HTTP request.
-	resp, err := http.ReadResponse(bufio.NewReader(&msgInfo.Buf), nil)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to parse request, err: %v\n", err)
-		return
-	}
-
-	if printEnabled {
-		body := resp.Body
-		b, _ := ioutil.ReadAll(body)
-		body.Close()
-		fmt.Printf("StatusCode: %s, Len: %s, ContentType: %s, Body: %s\n",
-			color.GreenString("%d", resp.StatusCode),
-			color.GreenString("%d", resp.ContentLength),
-			color.GreenString("%s", resp.Header["Content-Type"]),
-			color.GreenString("%s", string(b)))
-	}
-}
-
 func formatFrame(f http2.Frame, decoder *hpack.Decoder) string {
 	var buf bytes.Buffer
 	switch f := f.(type) {
@@ -189,7 +165,7 @@ func formatFrame(f http2.Frame, decoder *hpack.Decoder) string {
 	return buf.String()
 }
 
-func parseHttp2Frames(msgInfo *MessageInfo) {
+func parseAndPrintMessage(msgInfo *MessageInfo) {
 	framer := http2.NewFramer(ioutil.Discard, &msgInfo.Buf)
 	decoder := hpack.NewDecoder(2048, nil)
 	for {
@@ -200,14 +176,6 @@ func parseHttp2Frames(msgInfo *MessageInfo) {
 		}
 		log.Println(formatFrame(f, decoder))
 	}
-}
-
-func parseAndPrintMessage(msgInfo *MessageInfo) {
-	if parseHttp2 {
-		parseHttp2Frames(msgInfo)
-		return
-	}
-	parseHttpMessages(msgInfo)
 }
 
 func main() {
