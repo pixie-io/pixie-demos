@@ -17,8 +17,8 @@
 
 package main
 
-// This does not work for Golang programs built with 1.17 or newer toolchain. Go 1.17 uses a register-based calling
-// convention which the BPF code here cannot handle.
+// This does not work for Golang programs built with toolchain version 1.17 or newer. Go 1.17 uses a register-based
+// calling convention which the BPF code here cannot handle.
 const bpfProgram = `
 #include <uapi/linux/ptrace.h>
 
