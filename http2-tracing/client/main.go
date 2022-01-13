@@ -26,7 +26,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "pixielabs.ai/pixie/demos/simple-gotracing/grpc/proto/greetpb"
+	pb "pixielabs.ai/pixie/demos/http2-tracing/proto/greetpb"
 )
 
 func mustCreateGrpcClientConn(address string) *grpc.ClientConn {
