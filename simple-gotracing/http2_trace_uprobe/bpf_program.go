@@ -18,7 +18,7 @@
 package main
 
 // This does not work for Golang programs built with 1.17 or newer toolchain. Go 1.17 uses a register-based calling
-// convention for which the BPF code here cannot handle.
+// convention which the BPF code here cannot handle.
 const bpfProgram = `
 #include <uapi/linux/ptrace.h>
 
@@ -37,7 +37,7 @@ struct go_grpc_http2_header_event_t {
   struct header_field_t value;
 };
 
-// This matches golang string's memory layout, help reading data from golang string object.
+// This matches the golang string object memory layout. Used to help read golang string objects in BPF code.
 struct gostring {
   const char* ptr;
   int64_t len;
@@ -75,21 +75,24 @@ static void submit_headers(struct pt_regs* ctx, void* fields_ptr, int64_t fields
   }
 }
 
-// Signature: func (l *loopyWriter) writeHeader(uint32, bool, []hpack.HeaderField, ...)
+// Signature: func (l *loopyWriter) writeHeader(streamID uint32, endStream bool, hf []hpack.HeaderField, onWrite func())
 int probe_loopy_writer_write_header(struct pt_regs* ctx) {
   const void* sp = (const void*)ctx->sp;
 
   void* fields_ptr;
-  bpf_probe_read(&fields_ptr, sizeof(void*), sp + 24);
+	const int kFieldsPtrOffset = 24;
+  bpf_probe_read(&fields_ptr, sizeof(void*), sp + kFieldsPtrOffset);
 
   int64_t fields_len;
-  bpf_probe_read(&fields_len, sizeof(int64_t), sp + 24 + 8);
+	const int kFieldsLenOffset = 8;
+  bpf_probe_read(&fields_len, sizeof(int64_t), sp + kFieldsPtrOffset + kFieldsLenOffset);
 
   submit_headers(ctx, fields_ptr, fields_len);
   return 0;
 }
 
-// Signature: func (t *http2Server) operateHeaders(frame *http2.MetaHeadersFrame, ...)
+// Signature: func (t *http2Server) operateHeaders(frame *http2.MetaHeadersFrame, handle func(*Stream),
+// traceCtx func(context.Context, string) context.Context)
 int probe_http2_server_operate_headers(struct pt_regs* ctx) {
   const void* sp = (const void*)ctx->sp;
 
