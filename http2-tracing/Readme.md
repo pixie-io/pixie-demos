@@ -15,12 +15,12 @@ go build -o /tmp/grpc_server server/main.go && /tmp/grpc_server
 PID=$(ps aux | grep grpc_server | head -n 1 | awk '{print $2}')
 
 # Build and launch the kprobe tracer.
-(cd .. && go build -o /tmp/http_trace_kprobe ./http_trace_kprobe && \
- sudo -E /tmp/http_trace_kprobe --pid=${PID} --parseHttp2)
+go build -o /tmp/kprobe_trace ./kprobe_trace && \
+ sudo -E /tmp/kprobe_trace --pid=${PID}
 
 # Build and launch the uprobe tracer.
-(cd .. && go build -o /tmp/http2_trace_uprobe ./http2_trace_uprobe && \
- sudo -E /tmp/http2_trace_uprobe --binary=/tmp/grpc_server)
+go build -o /tmp/uprobe_trace ./uprobe_trace && \
+ sudo -E /tmp/uprobe_trace --binary=/tmp/grpc_server
 
 # Build and launch gRPC client.
 go build -o /tmp/grpc_client client/main.go && /tmp/grpc_client --count 10
