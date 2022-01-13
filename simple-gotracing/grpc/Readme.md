@@ -1,6 +1,6 @@
 # gRPC client & server
 
-This directory contains gRPC client & server for demonstrating the kprobe- & uprobe-based HTTP2
+This directory contains gRPC client & server for demonstrating the kprobe & uprobe-based HTTP2
 tracers. The following shell commands have to be run from this directory.
 
 ```
