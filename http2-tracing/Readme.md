@@ -1,4 +1,4 @@
-# HTTP/2 Tracing Demo
+# HTTP/2 Tracing With eBPF Uprobes Demo
 
 Use eBPF uprobes to trace HTTP/2 headers, without any changes to the application code.
 
