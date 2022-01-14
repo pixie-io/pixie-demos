@@ -1,10 +1,25 @@
-# gRPC client & server
+# HTTP/2 Tracing Demo
 
-This directory contains gRPC client & server for demonstrating the kprobe & uprobe-based HTTP2
-tracers. The following shell commands have to be run from this directory.
+Use eBPF uprobes to trace HTTP/2 headers, without any changes to the application code.
+
+## What is this demo?
+
+This demo provides the gRPC client and server, and the uprobe tracer for
+[HTTP2 tracing](https://blog.px.dev/http2-tracing).
+
+## Prerequisites
+
+* This demo only works on Linux, and with eBPF support. The code was tested on Ubuntu 20.04.3 LTS
+  with 5.4 kernel.
+* Install [BCC](https://github.com/iovisor/bcc/blob/master/INSTALL.md).
+* Install [Protocol buffer compiler](https://grpc.io/docs/protoc-installation/) and
+  [go protobuf plugin](https://grpc.io/docs/languages/go/quickstart/).
+* Various Go packages might be installed, follow the directives when any of the `go build` commands
+  failed.
+
+## Usage
 
 ```
-# You might need to install go protobuf plugin: https://grpc.io/docs/languages/go/quickstart/
 # To update protobuf generated go source files:
 protoc --go_out=. --go-grpc_out=. --go-grpc_opt=require_unimplemented_servers=false proto/greet.proto
 
