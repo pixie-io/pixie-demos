@@ -32,6 +32,10 @@ Demo project to accompany the [Slack Alerts using the Pixie API](https://docs.pi
 
 Demo project to accompany the [Detect SQL injections with Pixie](https://blog.px.dev/sql-injection/) blog post. This demo shows how to use Pixie to detect SQL injections on a Kubernetes application.
 
+## http2-tracing
+
+Demo project to accompany the [Observing HTTP/2 Traffic is Hard, but eBPF Can Help](https://blog.px.dev/http2-tracing/) blog post. This is a basic example of how to trace HTTP/2 messages using eBPF uprobes.
+
 # Have questions? Need help?
 
 Please reach out on our Pixie Community [Slack](https://slackin.px.dev/) or file a GitHub issue.
