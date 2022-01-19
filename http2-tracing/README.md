@@ -35,9 +35,11 @@ go build -o /tmp/grpc_server server/main.go && /tmp/grpc_server
 go build -o /tmp/grpc_client client/main.go && /tmp/grpc_client --count 10
 ```
 
-Click the packet in the capture window with `200 OK`, the decoded HTTP/2 headers can be seen below:
+Click the packet in the capture window with `200 OK`:
 
 <img src=".readme_assets/wireshark_packets.png" alt="Wireshark packets">
+
+The decoded HTTP/2 headers can be seen as below:
 
 <img src=".readme_assets/wireshark_http2_headers.png" alt="Wireshark HTTP/2 headers">
 
