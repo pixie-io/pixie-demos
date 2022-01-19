@@ -41,7 +41,7 @@ Click the packet in the capture window with `200 OK`:
 
 The decoded HTTP/2 headers can be seen as below:
 
-<img src=".readme_assets/wireshark_http2_headers.png" alt="Wireshark HTTP/2 headers">
+<img src=".readme_assets/wireshark_http2_headers.png" alt="Wireshark HTTP/2 headers" width="500">
 
 Now launch wireshark after launching gRPC client & server, such that wireshark only capture
 the traffic in the middle of the connection. This time, wireshark cannot decode the headers as shown
