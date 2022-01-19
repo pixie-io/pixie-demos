@@ -88,13 +88,12 @@ The output of the uprobe tracer looks like:
 * Change `gobpf` version in go.mod if `go build` failed when building uprobe tracer with error
   like below:
   ```
-  # github.com/iovisor/gobpf/bcc
-  ../../../pkg/mod/github.com/iovisor/gobpf@v0.0.0-20200614202714-e6b321d32103/bcc/module.go:261:33:
+  github.com/iovisor/gobpf/bcc ../../../pkg/mod/github.com/iovisor/gobpf@v0.0.0-20200614202714-e6b321d32103/bcc/module.go:261:33:
   not enough arguments in call to _C2func_bpf_attach_uprobe
         have (_Ctype_int, uint32, *_Ctype_char, *_Ctype_char, _Ctype_ulong, _Ctype_int)
         want (_Ctype_int, uint32, *_Ctype_char, *_Ctype_char, _Ctype_ulong, _Ctype_int, _Ctype_uint)
   ```
-  In `go.mod, uncomment any of the gobpf versions listed to replace the exiting one.
+  In `go.mod`, uncomment any of the gobpf versions listed to replace the exiting one.
   Until the build succeeds. Gobpf is a wrapper of BCC's libbpf APIs, but gobpf is not released
   through the same channel as BCC, so the build failed when the versions are not compatible.
 
