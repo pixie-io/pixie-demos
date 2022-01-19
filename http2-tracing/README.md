@@ -59,15 +59,13 @@ Run the commands below to see the uprobe tracer tracing the HTTP/2 messages from
 client:
 
 ```
-# Build and launch gRPC server.
 go build -o /tmp/grpc_server server/main.go && /tmp/grpc_server
 
 # Build and launch the uprobe tracer.
-# If failed, see instructions in the previous section.
+# If failed, see instructions in the Development section below to change gobpf version.
 go build -o /tmp/uprobe_trace ./uprobe_trace && \
  sudo -E /tmp/uprobe_trace --binary=/tmp/grpc_server
 
-# Build and launch gRPC client.
 go build -o /tmp/grpc_client client/main.go && /tmp/grpc_client --count 10
 ```
 
@@ -77,7 +75,7 @@ The output of the uprobe tracer looks like:
 
 ## Development
 
-* [OPTIONAL] If you want to modify the gRPC protobuf, you'll need to install:
+* If you want to modify the gRPC protobuf, you'll need to install:
   [protocol buffer compiler](https://grpc.io/docs/protoc-installation/) and
   [go protobuf plugin](https://grpc.io/docs/languages/go/quickstart/).
 * If you have modified the gRPC proto file, you'll need to run the following command to update the
@@ -85,7 +83,7 @@ The output of the uprobe tracer looks like:
   ```
   protoc --go_out=. --go-grpc_out=. --go-grpc_opt=require_unimplemented_servers=false proto/greet.proto
   ```
-* [OPTIONAL] Change `gobpf` version in go.mod if `go build` failed building uprobe tracer with error
+* Change `gobpf` version in go.mod if `go build` failed building uprobe tracer with error
   like below:
   ```
   # github.com/iovisor/gobpf/bcc
