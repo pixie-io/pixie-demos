@@ -53,7 +53,7 @@ go build -o /tmp/grpc_client client/main.go && /tmp/grpc_client --count 20
 sudo wireshark -Y "tcp.port == 50051 && http2" -i any -k
 ```
 
-<img src=".readme_assets/wireshark_http2_headers_failed.png" alt="Wireshark HTTP/2 headers failure">
+<img src=".readme_assets/wireshark_http2_headers_failed.png" alt="Wireshark HTTP/2 headers failure" width="500">
 
 ## Trace HTTP/2 headers with uprobe tracer
 
