@@ -5,8 +5,8 @@ Use eBPF uprobes to trace HTTP/2 headers, without any changes to the application
 ## What is this demo?
 
 This demo provides the gRPC client and server, and the uprobe tracer for
-[HTTP2 tracing](https://blog.px.dev/http2-tracing) blog post. Follow the instructions provided below
-to trace HTTP/2 message headers with eBPF uprobes.
+[Observing HTTP/2 Traffic is Hard, but eBPF Can Help](https://blog.px.dev/http2-tracing)
+blog post. Follow the instructions provided below to trace HTTP/2 message headers with eBPF uprobes.
 
 ## Prerequisites
 
@@ -18,7 +18,7 @@ to trace HTTP/2 message headers with eBPF uprobes.
 
 ## Trace HTTP/2 headers with wireshark
 
-First launch wireshark before launching gRPC client & server. When launching wireshark, you'll need
+First launch wireshark, and then launch gRPC client & server. When launching wireshark, you'll need
 to set the port for HTTP/2 protocol, follow the menu `Edit > Preferences > Protocols > HTTP2`, set
 `HTTP2 TCP port` to `50051`, as shown in the picture below:
 
@@ -35,7 +35,7 @@ go build -o /tmp/grpc_server server/main.go && /tmp/grpc_server
 go build -o /tmp/grpc_client client/main.go && /tmp/grpc_client --count 10
 ```
 
-Click the packet in the capture window with `200 OK`:
+Click the packet in the capture window containing the text `200 OK`:
 
 <img src=".readme_assets/wireshark_packets.png" alt="Wireshark packets">
 
@@ -43,9 +43,9 @@ The decoded HTTP/2 headers can be seen as below:
 
 <img src=".readme_assets/wireshark_http2_headers.png" alt="Wireshark HTTP/2 headers" width="500">
 
-Now launch wireshark after launching gRPC client & server, such that wireshark only capture
-the traffic in the middle of the connection. This time, wireshark cannot decode the headers as shown
-in the screenshot below.
+Now launch wireshark after launching gRPC client & server, such that **wireshark only capture
+the traffic in the middle of the connection**. This time, wireshark cannot decode the headers
+as shown in the screenshot below.
 
 ```
 go build -o /tmp/grpc_server server/main.go && /tmp/grpc_server
@@ -80,12 +80,12 @@ The output of the uprobe tracer looks like:
 * If you want to modify the gRPC protobuf, you'll need to install:
   [protocol buffer compiler](https://grpc.io/docs/protoc-installation/) and
   [go protobuf plugin](https://grpc.io/docs/languages/go/quickstart/).
-* If you have modified the gRPC proto file, you'll need to run the following command to update the
-  generated go source files for the gRPC service:
+* If you have modified the gRPC protobuf file, you'll need to run the following command to update
+  the generated go source files:
   ```
   protoc --go_out=. --go-grpc_out=. --go-grpc_opt=require_unimplemented_servers=false proto/greet.proto
   ```
-* Change `gobpf` version in go.mod if `go build` failed building uprobe tracer with error
+* Change `gobpf` version in go.mod if `go build` failed when building uprobe tracer with error
   like below:
   ```
   # github.com/iovisor/gobpf/bcc
@@ -94,9 +94,9 @@ The output of the uprobe tracer looks like:
         have (_Ctype_int, uint32, *_Ctype_char, *_Ctype_char, _Ctype_ulong, _Ctype_int)
         want (_Ctype_int, uint32, *_Ctype_char, *_Ctype_char, _Ctype_ulong, _Ctype_int, _Ctype_uint)
   ```
-  In `go.mod, uncomment any of the gobpf versions listed to see which one works on your machine.
-  The cause of this build failure is because gobpf is a wrapper of BCC's libbpf APIs. But gobpf is
-  not released through the same channel as BCC.
+  In `go.mod, uncomment any of the gobpf versions listed to replace the exiting one.
+  Until the build succeeds. Gobpf is a wrapper of BCC's libbpf APIs, but gobpf is not released
+  through the same channel as BCC, so the build failed when the versions are not compatible.
 
 ## Bugs & Features
 
