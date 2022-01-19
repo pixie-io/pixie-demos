@@ -19,7 +19,7 @@ Want to deprecate an API? Use [Pixie](https://github.com/pixie-io/pixie) to quic
 - Is this endpoint used?
 - Who is using this endpoint?
 
-[Can I deprecate this endpoint?]( https://blog.px.dev/api-deprecation) is the accompanying blog post for this demo.
+[Can I deprecate this endpoint?](https://blog.px.dev/endpoint-deprecation) is the accompanying blog post for this demo.
 
 ## k8s-cost-estimation
 
