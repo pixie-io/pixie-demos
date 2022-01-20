@@ -100,19 +100,11 @@ This script only examines two request header fields (Referer and Api-Key), but t
 
 ## How to Interact with the Live CLI
 
-For more information on how to interact with the Live CLI, including sorting columns, expanding truncated table cells and more, check out the [reference docs](https://docs.px.dev/using-pixie/using-cli/#use-the-live-cli).
+For more information, check out the [reference docs](https://docs.px.dev/using-pixie/using-cli/#use-the-live-cli).
 
 ## How to Run Scripts in the Live UI
 
-PxL scripts can be run using the [CLI](https://docs.px.dev/using-pixie/using-cli/#use-the-live-cli) or [Live UI](https://docs.px.dev/using-pixie/using-live-ui). This tutorial demonstrated the CLI. To run these scripts in the Live UI:
-
-- Open the Live UI.
-- Select the `Scratch Pad` script from the script drop-down menu in the top left.
-- Open the script editor using `ctrl+e` (Windows, Linux) or `cmd+e` (Mac).
-- Copy the contents of the `.pxl script` file into the “PxL Script” tab of the script editor.
-- Copy the contents of the `vis.json` file into the “Vis Spec” tab of the script editor.
-- Run the script using the RUN button in the top right or using the `ctrl+enter` (Windows, Linux) or `cmd+enter` (Mac) shortcut.
-- Hide the script editor using `ctrl+e` (Windows, Linux) or `cmd+e` (Mac).
+To learn how to run these scripts using the Live UI (instead of the CLI), check out the [reference docs](https://docs.px.dev/using-pixie/using-live-ui/#use-the-scratch-pad).
 
 ## Bugs & Features
 
