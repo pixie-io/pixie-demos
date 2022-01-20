@@ -21,6 +21,10 @@ Want to deprecate an API? Use [Pixie](https://github.com/pixie-io/pixie) to quic
 
 [Can I deprecate this endpoint?](https://blog.px.dev/endpoint-deprecation) is the accompanying blog post for this demo.
 
+## http2-tracing
+
+Demo project to accompany the [Observing HTTP/2 Traffic is Hard, but eBPF Can Help](https://blog.px.dev/ebpf-http2-tracing/) blog post. This is a basic example of how to trace HTTP/2 messages using eBPF uprobes.
+
 ## k8s-cost-estimation
 
 Use Pixie to estimate the cost of hosting your Kubernetes cluster.
@@ -44,10 +48,6 @@ Demo project to accompany the [Detect SQL injections with Pixie](https://blog.px
 ## react-table
 
 Demo project to accompany the [Tables are Hard, Part 2: Building a Simple Data Table in React](https://blog.px.dev/tables-are-hard-2) blog post. Interactive demo: [github.io](https://pixie-io.github.io/pixie-demos/react-table).
-
-## http2-tracing
-
-Demo project to accompany the [Observing HTTP/2 Traffic is Hard, but eBPF Can Help](https://blog.px.dev/http2-tracing/) blog post. This is a basic example of how to trace HTTP/2 messages using eBPF uprobes.
 
 # Have questions? Need help?
 
