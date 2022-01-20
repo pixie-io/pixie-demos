@@ -5,7 +5,7 @@ Use eBPF uprobes to trace HTTP/2 headers, without any changes to the application
 ## What is this demo?
 
 This demo provides the gRPC client and server, and the uprobe tracer for
-[Observing HTTP/2 Traffic is Hard, but eBPF Can Help](https://blog.px.dev/http2-tracing)
+[Observing HTTP/2 Traffic is Hard, but eBPF Can Help](https://blog.px.dev/ebpf-http2-tracing/)
 blog post. Follow the instructions provided below to trace HTTP/2 message headers with eBPF uprobes.
 
 ## Prerequisites
