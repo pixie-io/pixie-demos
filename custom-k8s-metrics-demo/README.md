@@ -6,7 +6,7 @@ Autoscale the number of pods in your Kubernetes deployment based on request thro
 
 This demo provides an example implementation of a custom Kubernetes metric from [Pixie](https://github.com/pixie-io/pixie) data. Specifically, it provides a metric for the number of HTTP requests per second by Kubernetes pod. This custom metric can then be used as an input to a [Horizontal Pod Autoscaler](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) in order to to scale up/down the number of pods.
 
-This demo was based off of the example in [kubernetes-sigs/custom-metrics-apiserver].
+This demo was based off of the example in [kubernetes-sigs/custom-metrics-apiserver](https://github.com/kubernetes-sigs/custom-metrics-apiserver).
 
 ## Prerequisites
 
