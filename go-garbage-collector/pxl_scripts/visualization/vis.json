@@ -1,0 +1,215 @@
+{
+  "variables": [
+    {
+      "name": "start_time",
+      "type": "PX_STRING",
+      "description": "The relative start time of the window. Current time is assumed to be now",
+      "defaultValue": "-1m"
+    }    
+  ],
+  "widgets": [
+    {
+      "name": "High-level events",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 3
+      },
+      "func": {
+        "name": "highlevel_events",
+        "args": [
+          {
+            "name": "start_time",
+            "variable": "start_time"
+          }
+        ]
+      },
+      "displaySpec": {
+        "@type": "types.px.dev/px.vispb.Table"
+      }
+    },    
+    {
+      "name": "Memory events",
+      "position": {
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 3
+      },
+      "func": {
+        "name": "mark_alloc_sweep_events",
+        "args": [
+          {
+            "name": "start_time",
+            "variable": "start_time"
+          }
+        ]
+      },
+      "displaySpec": {
+        "@type": "types.px.dev/px.vispb.Table"
+      }
+    },
+    {
+      "name": "Alloc",
+      "position": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 3
+      },
+      "func": {
+        "name": "alloc_timeseries",
+        "args": [
+          {
+            "name": "start_time",
+            "variable": "start_time"
+          }
+        ]
+      },
+      "displaySpec": {
+        "@type": "types.px.dev/px.vispb.TimeseriesChart",
+        "timeseries": [
+          {
+            "value": "pages_alloc",
+            "mode": "MODE_LINE"
+          }
+        ],
+        "title": "Pages allocated",
+        "yAxis": {
+          "label": "Pages allocated"
+        },
+        "xAxis": null
+      }
+    },
+    {
+      "name": "Mark",
+      "position": {
+        "x": 0,
+        "y": 9,
+        "w": 12,
+        "h": 3
+      },
+      "func": {
+        "name": "mark_timeseries",
+        "args": [
+          {
+            "name": "start_time",
+            "variable": "start_time"
+          }
+        ]
+      },
+      "displaySpec": {
+        "@type": "types.px.dev/px.vispb.TimeseriesChart",
+        "timeseries": [
+          {
+            "value": "mark_work_units",
+            "mode": "MODE_LINE"
+          }
+        ],
+        "title": "Mark work completed",
+        "yAxis": {
+          "label": "Mark work units"
+        },
+        "xAxis": null
+      }
+    },
+    {
+      "name": "Sweep",
+      "position": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 3
+      },
+      "func": {
+        "name": "sweep_timeseries",
+        "args": [
+          {
+            "name": "start_time",
+            "variable": "start_time"
+          }
+        ]
+      },
+      "displaySpec": {
+        "@type": "types.px.dev/px.vispb.TimeseriesChart",
+        "timeseries": [
+          {
+            "value": "pages_swept",
+            "mode": "MODE_LINE"
+          }
+        ],
+        "title": "Pages swept",
+        "yAxis": {
+          "label": "Pages swept"
+        },
+        "xAxis": null
+      }
+    },
+    {
+      "name": "Trigger Ratio",
+      "position": {
+        "x": 0,
+        "y": 15,
+        "w": 12,
+        "h": 3
+      },
+      "func": {
+        "name": "trigger_ratio",
+        "args": [
+          {
+            "name": "start_time",
+            "variable": "start_time"
+          }
+        ]
+      },
+      "displaySpec": {
+        "@type": "types.px.dev/px.vispb.TimeseriesChart",
+        "timeseries": [
+          {
+            "value": "ratio",
+            "mode": "MODE_LINE"
+          }
+        ],
+        "title": "Trigger Ratio",
+        "yAxis": {
+          "label": "Ratio"
+        },
+        "xAxis": null
+      }
+    },
+    {
+      "name": "Assist work",
+      "position": {
+        "x": 0,
+        "y": 15,
+        "w": 12,
+        "h": 3
+      },
+      "func": {
+        "name": "assist_alloc_timeseries",
+        "args": [
+          {
+            "name": "start_time",
+            "variable": "start_time"
+          }
+        ]
+      },
+      "displaySpec": {
+        "@type": "types.px.dev/px.vispb.TimeseriesChart",
+        "timeseries": [
+          {
+            "value": "work_units",
+            "mode": "MODE_LINE"
+          }
+        ],
+        "title": "Assist work",
+        "yAxis": {
+          "label": "Units of work"
+        },
+        "xAxis": null
+      }
+    }
+  ],
+  "globalFuncs": []
+}
