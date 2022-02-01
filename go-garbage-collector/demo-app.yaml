@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: gcr.io/pl-pixies/demos/go_garbage_collection_image:latest
+          image: gcr.io/pixie-oss/pixie-dev/demo/go_garbage_collection_image:latest
           ports:
             - containerPort: 8080
 ---
