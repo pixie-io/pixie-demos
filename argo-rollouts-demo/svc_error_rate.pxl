@@ -1,0 +1,34 @@
+# Copyright (c) Pixie Labs, Inc.
+# Licensed under the Apache License, Version 2.0 (the "License")
+
+''' Service Errors
+
+This script ouputs a table of the overall HTTP/2 error rate
+for each service.
+'''
+
+import px
+
+# Get list of services (even non-HTTP)
+df = px.DataFrame(table='process_stats', start_time='-30s')
+df.service = df.ctx['service']
+svc_list = df.groupby('service').agg()
+
+# Get HTTP/2 events (not all services will have this)
+df = px.DataFrame(table='http_events', start_time='-30s')
+df.service = df.ctx['service']
+df.failure = df.resp_status >= 400
+# Filter only to inbound service traffic (server-side).
+# Don't include traffic initiated by this service to an external location.
+df = df[df.trace_role == 2]
+
+df = df.groupby('service').agg(
+    http_req_count_in=('latency', px.count),
+    http_error_count_in=('failure', px.sum),
+)
+
+df.http_error_rate_in = px.Percent(
+        px.select(df.http_req_count_in != 0, df.http_error_count_in / df.http_req_count_in, 0.0))
+
+df = svc_list.merge(df, how='left', left_on='service', right_on='service', suffixes=['', '_x'])
+px.display(df[['service', 'http_error_rate_in']], 'pod_stats')

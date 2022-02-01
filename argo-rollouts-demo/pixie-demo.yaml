@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: px-metrics-service
+  labels:
+    name: px-metrics-service
+    namespace: px-metrics
+spec:
+  selector:
+    matchLabels:
+      name: px-metrics-service
+  template:
+    metadata:
+      labels:
+        name: px-metrics-service
+        plane: control
+    spec:
+      containers:
+        - name: app
+          image: gcr.io/pl-dev-infra/demos/htroisi-scratch/argo-rollouts-demo:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: px-metrics-service
+  labels:
+    name: px-metrics-service
+  namespace: px-metrics
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    name: px-metrics-service
