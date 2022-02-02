@@ -21,6 +21,10 @@ Want to deprecate an API? Use [Pixie](https://github.com/pixie-io/pixie) to quic
 
 [Can I deprecate this endpoint?](https://blog.px.dev/endpoint-deprecation) is the accompanying blog post for this demo.
 
+## [go-garbage-collector](https://github.com/pixie-io/pixie-demos/tree/main/go-garbage-collector)
+
+Instrument the internals of the Golang garbage collector with eBPF uprobes to visualize its behavior. [Dumpster-diving the Go Garbage Collector](https://blog.px.dev/go-garbage-collector) is the accompanying blog post for this demo.
+
 ## [http2-tracing](https://github.com/pixie-io/pixie-demos/tree/main/http2-tracing)
 
 Demo project to accompany the [Observing HTTP/2 Traffic is Hard, but eBPF Can Help](https://blog.px.dev/ebpf-http2-tracing/) blog post. This is a basic example of how to trace HTTP/2 messages using eBPF uprobes.
