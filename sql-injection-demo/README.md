@@ -160,7 +160,7 @@ the bottom of the CLI output at `Live UI:`.
 4. Run the following command. Note: this requires Python `3.8.7` or greater.
 
     ```
-    python slackboy.py
+    python slackbot.py
     ```
 
 ## Clean up
