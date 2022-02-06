@@ -8,6 +8,8 @@ to SQL injection monitored by Pixie, run
 application, and detect the SQL injections at the database level using a PxL script.
 This demo was created to accompany the "Detect SQL injections with Pixie" [blog post](https://blog.px.dev/sql-injection/).
 
+You can also view a live version of this demo at this [talk](https://www.youtube.com/watch?v=EG4isSqD3IE) (SQL injection content at about 11:51 in).
+
 ## WARNING
 
 DVWA is an *intentionally* vulnerable web application. It should **NOT** be deployed to
@@ -146,6 +148,22 @@ the bottom of the CLI output at `Live UI:`.
 1. Replace the Vis Spec tab contents with the contents of `script/vis.json`.
 1. Click Run.
 1. You should now see the SQL Injection queries run by SQLMap in the data table.
+
+## (Optional) Run Slackbot to alert on possible SQL injections
+
+1. cd into the `slackbot` directory
+
+1. `pip install -r requirements.txt`
+
+1. Set the environment variables `PIXIE_API_KEY`, `SLACK_BOT_TOKEN`, `PIXIE_CLUSTER_ID`, and `SLACK_ALERT_CHANNEL`. 
+
+You can reference [these instructions](https://docs.px.dev/tutorials/integrations/slackbot-alert/) for how to get `PIXIE_API_KEY`, `SLACK_BOT_TOKEN`, and `PIXIE_CLUSTER_ID`.
+
+2. Run the following command. Note: this requires Python `3.8.7` or greater.
+
+    ```
+    python slackboy.py
+    ```
 
 ## Clean up
 
