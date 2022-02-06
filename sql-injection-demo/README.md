@@ -153,13 +153,11 @@ the bottom of the CLI output at `Live UI:`.
 
 1. cd into the `slackbot` directory
 
-1. `pip install -r requirements.txt`
+2. `pip install -r requirements.txt`
 
-1. Set the environment variables `PIXIE_API_KEY`, `SLACK_BOT_TOKEN`, `PIXIE_CLUSTER_ID`, and `SLACK_ALERT_CHANNEL`. 
+3. Set the environment variables `PIXIE_API_KEY`, `SLACK_BOT_TOKEN`, `PIXIE_CLUSTER_ID`, and `SLACK_ALERT_CHANNEL`. You can reference [these instructions](https://docs.px.dev/tutorials/integrations/slackbot-alert/) for how to get `PIXIE_API_KEY`, `SLACK_BOT_TOKEN`, and `PIXIE_CLUSTER_ID`.
 
-You can reference [these instructions](https://docs.px.dev/tutorials/integrations/slackbot-alert/) for how to get `PIXIE_API_KEY`, `SLACK_BOT_TOKEN`, and `PIXIE_CLUSTER_ID`.
-
-2. Run the following command. Note: this requires Python `3.8.7` or greater.
+4. Run the following command. Note: this requires Python `3.8.7` or greater.
 
     ```
     python slackboy.py
