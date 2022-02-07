@@ -8,6 +8,8 @@ This demo provides an example implementation of a custom Kubernetes metric from 
 
 This demo was based off of the example in [kubernetes-sigs/custom-metrics-apiserver](https://github.com/kubernetes-sigs/custom-metrics-apiserver).
 
+You can also view a live version of this demo at this [talk](https://www.youtube.com/watch?v=EG4isSqD3IE) (autoscaling content at about 22:43 in).
+
 ## Prerequisites
 
 * If you don't already have one, set up a [Kubernetes cluster](https://docs.px.dev/installing-pixie/setting-up-k8s/)
