@@ -15,6 +15,8 @@ This demo uses [Pixie](https://github.com/pixie-io/pixie) to perform canary anal
 
 ## Setup the Pixie Metrics Server
 
+The Pixie metrics server has an `/error-rate/<namespace>/<pod(s)>` endpoint that returns HTTP error rate per specified pod(s).
+
 1. Clone this repo and navigate to the `argo-rollouts-demo` folder:
 
 ```
@@ -86,7 +88,7 @@ Each of these colorful squares is a request the browser is making to the backend
 
 The backend responds with a color that indicates which version of the app it is. In this case we're getting blue boxes for the application image with the `blue` tag set in the [Rollout](https://github.com/pixie-io/pixie-demos/tree/main/argo-rollouts-demo/canary/rollout-with-analysis.yaml) yaml.
 
-The bar chart at the bottom represents the percentage of requests that were handled by the different backends (stable, canary). We will see this in action in a minute.
+The bar chart at the bottom represents the percentage of requests that were handled by the different backends (stable, canary). Currently you should see all requests are handled by the stable backend. We will see the stable and canary backends split the traffic in the next step.
 
 <br clear="all">
 
@@ -114,7 +116,7 @@ On our first step, we direct 50% of traffic to the `blue` release and 50% to `ye
 
 Argo Rollouts splits traffic between versions by creating a new replica set that uses the same service object and the service will still split the traffic evenly across pods (new and old). In other words, controlling the number of pods controls the traffic percentage.
 
-Our analysis is measuring the HTTP error rate for the canary pods every 30 seconds.
+The Rollout controller queries the Pixie metric server to get HTTP error rate for the canary pods every 30 seconds.
 
 <br clear="all">
 
@@ -152,7 +154,7 @@ kubectl argo rollouts set image canary-demo "*=argoproj/rollouts-demo:bad-red"
 <img src=".readme_assets/unsuccessful-front-end.png" width="550" align="left">
 <br>
 
-We see requests being made to the yellow (stable) and red (canary) version.
+We see requests are being split between the `yellow` (stable) and `red` (canary) version.
 
 <br clear="all">
 
@@ -162,9 +164,11 @@ We see requests being made to the yellow (stable) and red (canary) version.
 <img src=".readme_assets/unsuccessful-rollout-complete.png" width="550" align="right">
 <br>
 
-After 30 seconds or so (the length of time it takes to get the analysis results back), the analysis should return an HTTP error rate that does not meet the `successCondition` defined in the `pixie-analysis.yaml` file).
+The Rollout controller queries the Pixie metric server to get HTTP error rate for the canary pods every 30 seconds.
 
-The rollout fails and automatically rolls back to the stable `yellow` version.
+After 30 seconds or so (the length of time it takes to get the analysis results back), the analysis should return an HTTP error rate that does not meet the `successCondition` defined in the `pixie-analysis.yaml` file.
+
+The rollout fails and the Rollout controller automatically rolls the deployment back to the `yellow` (stable) version.
 
 <br clear="all">
 
