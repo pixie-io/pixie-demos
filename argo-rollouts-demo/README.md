@@ -84,7 +84,7 @@ kubectl get svc canary-demo-preview
 <img src=".readme_assets/front-end.png"  width="550" align="right">
 <br>
 
-Each of these colorful squares is a request the browser is making to the backend.
+Each of these colorful squares represents a request made by the browser to the demo application backend.
 
 The backend responds with a color that indicates which version of the app it is. In this case we're getting blue boxes for the application image with the `blue` tag set in the [Rollout](https://github.com/pixie-io/pixie-demos/tree/main/argo-rollouts-demo/canary/rollout-with-analysis.yaml) yaml.
 
