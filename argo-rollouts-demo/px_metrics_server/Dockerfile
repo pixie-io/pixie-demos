@@ -9,7 +9,6 @@ COPY go.sum ./
 RUN go mod download
 
 COPY *.go ./
-COPY *.pxl ./
 
 RUN go build -o /adapter
 

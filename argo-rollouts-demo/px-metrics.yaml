@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: gcr.io/pl-dev-infra/demos/htroisi-scratch/argo-rollouts-demo:latest
+          image: gcr.io/pixie-oss/pixie-dev/demo/argo-rollouts-demo:latest
           env:
           - name: PX_CLOUD_ADDR
             value: withpixie.ai:443
