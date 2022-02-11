@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: http-error-rate-background
+spec:
+  args:
+    - name: service-name
+    - name: namespace
+    - name: canary-pod-hash
+  metrics:
+  - name: webmetric
+    successCondition: result <= 0.1
+    interval: 30s
+    initialDelay: 30s
+    provider:
+      web:
+        url: "http://px-metrics.px-metrics.svc.cluster.local/error-rate/{{args.namespace}}/{{args.service-name}}-{{args.canary-pod-hash}}"
+        timeoutSeconds: 20
+        jsonPath: "{$.error_rate}"

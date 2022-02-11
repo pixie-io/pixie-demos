@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: canary-demo
+spec:
+  replicas: 5
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: canary-demo
+  strategy:
+    canary:
+      # This analysis will run in the background while the canary progresses through its
+      # rollout steps. It will check every 30 seconds if the application's HTTP error rate is
+      # more than 10%. If so, the canary will fail and the deployment will be aborted.
+      analysis:
+        templates:
+        - templateName: http-error-rate-background
+        args:
+          - name: namespace
+            value: default
+          - name: service-name
+            value: canary-demo
+          - name: canary-pod-hash
+            valueFrom:
+              podTemplateHashValue: Latest
+      canaryService: canary-demo-preview
+      steps:
+      # First, we only redirect 50% of our application traffic to the canary. This number is way to
+      # large of a value for real world canary testing, but is used to illustrate the method.
+      - setWeight: 50
+      - pause: {duration: 60s}
+      # Increase traffic gradually
+      - setWeight: 80
+      - pause: {duration: 60s}
+      # No more steps here means that the canary succeeded and will be automatically promoted to stable.
+      # If you want to pause the canary here and promote it manually, just add pause{} step with no duration.
+
+  template:
+    metadata:
+      labels:
+        app: canary-demo
+    spec:
+      containers:
+      - image: argoproj/rollouts-demo:blue
+        imagePullPolicy: Always
+        name: canary-demo
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 5m
+            memory: 32Mi

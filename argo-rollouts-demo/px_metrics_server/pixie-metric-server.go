@@ -22,7 +22,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -33,64 +32,49 @@ import (
 	pxTypes "px.dev/pxapi/types"
 )
 
-func (p *pixieMetricsProvider) podRPS(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+// PxL script to compute the metrics. Could be extended to compute additional metrics.
+const timeWindow = "-30s"
+const pxlScript = `import px
 
-	// Read PxL script from file.
-	b, err := ioutil.ReadFile("svc_error_rate.pxl")
-	if err != nil {
-		panic(err)
-	}
-	pxlScript := string(b)
+POD_NAMESPACE="%s"
+POD_NAME="%s"
+START_TIME="%s"
 
-	// Compute metrics
-	ctx := context.Background()
-	p.computeMetrics(ctx, pxlScript)
-	//log.Println("New Pixie metrics: ", p.podRequestsPerS)
+# Get HTTP events (not all pods will have this)
+df = px.DataFrame(table='http_events', start_time=START_TIME)
 
-	// Get URL params.
-	namespace := ps.ByName("namespace")
-	service := ps.ByName("service")
-	// Pixie refers to pods and services in the <namespace>/<pod,service> format.
-	pixieServiceName := namespace + "/" + service
+# Add context
+df.namespace = df.ctx['namespace']
+df.pod = df.ctx['pod']
 
-	// Get metric for pod.
-	errorRate := p.podRequestsPerS[pixieServiceName]
+# Filter HTTP events
+df = df[df.trace_role == 2]
+df.failure = df.resp_status >= 400
+df = df[df.namespace == POD_NAMESPACE]
+df = df[px.contains(df.pod, POD_NAME)]
 
-	log.Println(service, " has ", errorRate, " error rate.")
+# Aggregate throughput, errors, latency for inbound requests to matching pods.
+df = df.agg(
+    http_req_count_in=('latency', px.count),
+    http_error_count_in=('failure', px.sum),
+    http_latency_in=('latency', px.quantiles)
+)
 
-	// Argo Analysis webhook response must return JSON content.
-	w.Header().Set("Content-Type", "application/json")
-	m := map[string]float64{"error_rate": errorRate}
-	json.NewEncoder(w).Encode(m)
-}
+df.pod=POD_NAME
+df.latency_p99 = px.DurationNanos(px.floor(px.pluck_float64(df.http_latency_in, 'p99')))
+df.http_error_rate_in = px.Percent(
+        px.select(df.http_req_count_in != 0, df.http_error_count_in / df.http_req_count_in, 0.0))
+
+px.display(df[['pod', 'http_error_rate_in']], 'pod_stats')
+`
 
 type pixieMetricsProvider struct {
-	vizierClient    *pxapi.VizierClient
-	dataMux         sync.Mutex
-	podRequestsPerS map[string]float64
+	vizierClient *pxapi.VizierClient
+	dataMux      sync.Mutex
+	podErrorRate map[string]float64
 }
 
-func (p *pixieMetricsProvider) computeMetrics(ctx context.Context, pxlScript string) {
-	tm := &tableMux{
-		onPodStatsComplete: func(newStats map[string]float64) {
-			p.dataMux.Lock()
-			defer p.dataMux.Unlock()
-			p.podRequestsPerS = newStats
-		},
-	}
-	log.Println("Executing PxL query.")
-	results, err := p.vizierClient.ExecuteScript(ctx, pxlScript, tm)
-	if err != nil {
-		log.Printf("Error executing PxL script: %s\n", err.Error())
-	}
-	if err = results.Stream(); err != nil {
-		log.Printf("Error executing PxL script: %s\n", err.Error())
-	}
-}
-
-// NewPixieMetricProvider returns an instance of the Pixie metrics provider.
-func NewPixieMetricProvider(apiKey string, cloudAddr string, clusterID string) *pixieMetricsProvider {
-
+func newPixieMetricProvider(apiKey string, cloudAddr string, clusterID string) *pixieMetricsProvider {
 	// Create Pixie client.
 	log.Println("Creating Pixie client.")
 	ctx := context.Background()
@@ -105,11 +89,53 @@ func NewPixieMetricProvider(apiKey string, cloudAddr string, clusterID string) *
 
 	// Create pixieMetricsProvider.
 	provider := &pixieMetricsProvider{
-		vizierClient:    vz,
-		podRequestsPerS: make(map[string]float64),
+		vizierClient: vz,
+		podErrorRate: make(map[string]float64),
 	}
 
 	return provider
+}
+
+func (p *pixieMetricsProvider) computeMetrics(ctx context.Context, pxlScript string) {
+	tm := &tableMux{
+		onPodStatsComplete: func(newStats map[string]float64) {
+			p.dataMux.Lock()
+			defer p.dataMux.Unlock()
+			p.podErrorRate = newStats
+		},
+	}
+	log.Println("Executing PxL query.")
+	results, err := p.vizierClient.ExecuteScript(ctx, pxlScript, tm)
+	if err != nil {
+		log.Printf("Error executing PxL script: %s\n", err.Error())
+	}
+	if err = results.Stream(); err != nil {
+		log.Printf("Error executing PxL script: %s\n", err.Error())
+	}
+}
+
+func (p *pixieMetricsProvider) errors(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	// Get URL params.
+	namespace := ps.ByName("namespace")
+	pod := ps.ByName("pod")
+
+	// Pixie refers to pods in the <namespace>/<pod> format.
+	pixiePodName := namespace + "/" + pod
+	pxlScript := fmt.Sprintf(pxlScript, namespace, pixiePodName, timeWindow)
+
+	// Compute metrics.
+	ctx := context.Background()
+	p.computeMetrics(ctx, pxlScript)
+
+	// Get metric for pod.
+	errorRate := p.podErrorRate[pixiePodName]
+	s := fmt.Sprintf("The %s pod(s) has a %2.2f %% error rate.", pod, errorRate)
+	log.Println(s)
+
+	// Argo Analysis webhook response needs to requires a JSON response.
+	w.Header().Set("Content-Type", "application/json")
+	m := map[string]float64{"error_rate": errorRate}
+	json.NewEncoder(w).Encode(m)
 }
 
 // Implement the TableRecordHandler interface to processes the PxL script output table record-wise.
@@ -123,10 +149,10 @@ func (t *podStatsCollector) HandleInit(ctx context.Context, metadata pxTypes.Tab
 }
 
 func (t *podStatsCollector) HandleRecord(ctx context.Context, r *pxTypes.Record) error {
-	service := r.GetDatum("service").String()
+	pod := r.GetDatum("pod").String()
 	errorRate, ok := r.GetDatum("http_error_rate_in").(*pxTypes.Float64Value)
 	if ok {
-		t.podStatsTmp[service] = errorRate.Value()
+		t.podStatsTmp[pod] = errorRate.Value()
 	}
 	return nil
 }
@@ -177,10 +203,9 @@ func main() {
 	if apiKey == "" {
 		log.Fatalln("`PX_API_KEY` is not set. Did you remember to set the `px-credentials` secret?")
 	}
-
-	p := NewPixieMetricProvider(apiKey, cloudAddr, clusterID)
+	p := newPixieMetricProvider(apiKey, cloudAddr, clusterID)
 
 	router := httprouter.New()
-	router.GET("/podrps/:namespace/:service", p.podRPS)
+	router.GET("/error-rate/:namespace/:pod", p.errors)
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
