@@ -35,7 +35,6 @@ spec:
       - pause: {duration: 60s}
       # No more steps here means that the canary succeeded and will be automatically promoted to stable.
       # If you want to pause the canary here and promote it manually, just add pause{} step with no duration.
-
   template:
     metadata:
       labels:
