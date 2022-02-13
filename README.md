@@ -1,5 +1,9 @@
 # pixie-demos
 
+## [argo-rollouts-demo](https://github.com/pixie-io/pixie-demos/tree/main/argo-rollouts-demo)
+
+This demo shows how to use Pixie to perform canary analysis as part of an Argo Rollout. [Canary Releases with Argo Rollouts and Pixie](https://blog.px.dev/argo-rollouts) is the accompanying blog post for this demo.
+
 ## [custom-k8s-metrics-demo](https://github.com/pixie-io/pixie-demos/tree/main/custom-k8s-metrics-demo)
 
 This demo project shows how to use Pixie to autoscale the number of pods in your Kubernetes deployment based on request throughput, without any code changes. [Horizontal Pod Autoscaling with Custom Metrics in Kubernetes](https://blog.px.dev/autoscaling-custom-k8s-metric) is the accompanying blog post.
