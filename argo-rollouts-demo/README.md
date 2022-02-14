@@ -4,7 +4,7 @@ Use Pixie analytics to drive canary releases to make your application deployment
 
 ## What is this demo?
 
-This demo uses [Pixie](https://github.com/pixie-io/pixie) to perform canary analysis as part of an Argo Rollouts [canary analysis example project](https://github.com/argoproj/rollouts-demo). A Pixie metrics server is deployed with an endpoint that returns HTTP error rate per specified pod. This error rate is used by the Argo Rollouts controller to determine whether to promote or rollback an application upgrade.
+This demo uses [Pixie](https://github.com/pixie-io/pixie) to perform canary analysis as part of a Argo Rollout [canary analysis example project](https://github.com/argoproj/rollouts-demo). A Pixie metrics server is deployed with an endpoint that returns HTTP error rate per specified pod. This error rate is used by the Argo Rollouts controller to determine whether to promote or rollback an application upgrade.
 
 ## Requirements
 

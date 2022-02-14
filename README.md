@@ -2,7 +2,7 @@
 
 ## [argo-rollouts-demo](https://github.com/pixie-io/pixie-demos/tree/main/argo-rollouts-demo)
 
-This demo shows how to use Pixie to perform canary analysis as part of an Argo Rollout. [Canary Releases with Argo Rollouts and Pixie](https://blog.px.dev/argo-rollouts) is the accompanying blog post for this demo.
+This demo shows how to use Pixie to perform canary analysis as part of a Argo Rollout. [Canary Releases with Argo Rollouts and Pixie](https://blog.px.dev/argo-rollouts) is the accompanying blog post for this demo.
 
 ## [custom-k8s-metrics-demo](https://github.com/pixie-io/pixie-demos/tree/main/custom-k8s-metrics-demo)
 
