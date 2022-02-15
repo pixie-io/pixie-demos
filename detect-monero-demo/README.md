@@ -20,6 +20,9 @@ tar -xzvf xmrig-6.16.4-linux-static-x64.tar.gz
 # Move the binary out of the directory
 mv xmrig-6.16.4/xmrig .
 
+# Create a config file using https://xmrig.com/wizard and paste it here.
+vim config.json
+
 # You might have to change your docker-env to push to your local environment 
 docker build . -t xmrig
 kubectl apply -f k8s/
@@ -33,6 +36,7 @@ sudo bpftrace detectrandomx.bt
 ```
 
 ## Running the pxl script
+**bpftrace in Pixie is still an alpha feature. APIs might change and features might break.**
 ### Pixie CLI
 ```bash
 px run -f detectrandomx.pxl
@@ -51,6 +55,3 @@ on ARM processors.
 >=5.16 changed the structure.
 3. Minikube virtualizes the CPU so this script won't work inside Pixie running on Minikube. I
 used [k0s](https://k0sproject.io/). 
-4. 
-
-

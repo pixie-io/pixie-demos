@@ -22,5 +22,18 @@ pxtrace.UpsertTracepoint(table_name,
                          program,
                          pxtrace.kprobe(),
                          "10m")
+
+proc = px.DataFrame(table='process_stats')
+proc.pod = proc.ctx['pod']
+proc.pid = px.upid_to_pid(proc.upid)
+proc.asid = px.upid_to_asid(proc.upid)
+proc_to_pod = proc.groupby(['pod', 'pid', 'asid']).agg()
+
 df = px.DataFrame(table=table_name)
+df.asid = px.asid()
+df = df.merge(proc_to_pod,
+              how='inner',
+              left_on=['pid', 'asid'],
+              right_on=['pid', 'asid'])
+df = df.groupby('pod').agg(count=('fpcr', px.count))
 px.display(df)

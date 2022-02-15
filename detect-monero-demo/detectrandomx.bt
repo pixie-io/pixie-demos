@@ -6,7 +6,7 @@ tracepoint:x86_fpu:x86_fpu_regs_deactivated
     $mxcsr = $f->state.xsave.i387.mxcsr;
     $fpcr = ($mxcsr & 0x6000) >> 13;
     if ($fpcr != 0) { 
-        printf("time_:%llu pid:%d comm:%s fpcr:%d",
+        printf("time_:%llu pid:%d comm:%s fpcr:%d\n",
             nsecs, pid, comm, $fpcr);
     }
 }
