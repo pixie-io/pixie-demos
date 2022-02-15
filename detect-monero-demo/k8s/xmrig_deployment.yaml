@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xmrig-deployment
+  namespace: cryptocurrency
+  labels:
+    app: xmrig
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xmrig
+  template:
+    metadata:
+      labels:
+        app: xmrig
+    spec:
+      containers:
+      - name: xmrig 
+        image: xmrig:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80

@@ -1,0 +1,26 @@
+import pxtrace
+import px
+
+program = """
+#include <asm/fpu/internal.h>
+#include <asm/fpu/types.h>
+tracepoint:x86_fpu:x86_fpu_regs_deactivated
+{
+    $f = (struct fpu *)args->fpu;
+    $mxcsr = $f->state.xsave.i387.mxcsr;
+    $fpcr = ($mxcsr & 0x6000) >> 13;
+    if ($fpcr != 0) { 
+        printf(\"time_:%llu pid:%d comm:%s fpcr:%d\",
+                nsecs, pid, comm, $fpcr);
+    }
+}
+"""
+
+table_name = 'fpcr_values'
+pxtrace.UpsertTracepoint(table_name,
+                         table_name,
+                         program,
+                         pxtrace.kprobe(),
+                         "10m")
+df = px.DataFrame(table=table_name)
+px.display(df)
