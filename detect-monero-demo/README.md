@@ -25,7 +25,7 @@ vim config.json
 
 # You might have to change your docker-env to push to your local environment 
 docker build . -t xmrig
-kubectl apply -f k8s/
+kubectl apply -f xmrig_deployment.yaml
 ```
 
 ## Running the bpftrace script
