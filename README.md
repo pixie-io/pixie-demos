@@ -8,6 +8,10 @@ This demo shows how to use Pixie to perform canary analysis as part of a Argo Ro
 
 This demo project shows how to use Pixie to autoscale the number of pods in your Kubernetes deployment based on request throughput, without any code changes. [Horizontal Pod Autoscaling with Custom Metrics in Kubernetes](https://blog.px.dev/autoscaling-custom-k8s-metric) is the accompanying blog post.
 
+## [detect-monero-demo](https://github.com/pixie-io/pixie-demos/tree/main/detect-monero-demo)
+Demo deployment to accompany the [Detect Monero Miners with bpftrace](https://blog.px.dev/detecting-monero-miners) blog post. Demo demonstrates how to use bpftrace and/or Pixie to detect Monero miners running in a Kubernetes cluster.
+Includes instructions to deploy a Monero miner for testing purposes.
+
 ## [ebpf-profiler](https://github.com/pixie-io/pixie-demos/tree/main/ebpf-profiler)
 
 Demo project to accompany the [Building a Continuous Profiler Part 2: A Simple eBPF-Based Profiler](https://blog.px.dev/cpu-profiling-2/) blog post. This CPU performance profiler project shows how to get sample stack traces for performance profiling, using eBPF.
@@ -56,10 +60,6 @@ Demo project to accompany the [Slack Alerts using the Pixie API](https://docs.pi
 ## [sql-injection-demo](https://github.com/pixie-io/pixie-demos/tree/main/sql-injection-demo)
 
 Demo project to accompany the [Detect SQL injections with Pixie](https://blog.px.dev/sql-injection/) blog post. This demo shows how to use Pixie to detect SQL injections on a Kubernetes application.
-
-## [detect-monero-demo](https://github.com/pixie-io/pixie-demos/tree/main/detect-monero-demo)
-Demo deployment to accompany the [Detect Monero Miners with bpftrace](https://blog.px.dev/detecting-monero-miners) blog post. Demo demonstrates how to use bpftrace and/or Pixie to detect Monero miners running in a Kubernetes cluster.
-Includes instructions to deploy a Monero miner for testing purposes.
 
 # Have questions? Need help?
 
