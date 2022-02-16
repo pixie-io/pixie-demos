@@ -1,9 +1,26 @@
 # Detect Monero Miners with bpftrace
-This demo accompanies the [Detect Monero Miners with bpftrace blogpost]().
+This demo accompanies the [Detect Monero Miners with bpftrace blogpost](https://blog.px.dev/detecting-monero-miners).
+## Optional: Deploy k0s
+**Cloud Providers have strict policies around cryptomining. We strongly recommend not deploying to a cloud provider or you will risk account deactivation.**
+One option is to [deploy k0s](https://docs.k0sproject.io/v1.23.3+k0s.0/install/), exposing the cri to your local docker instance
+```
+# Download k0s
+curl -sSLf https://get.k0s.sh | sudo sh
+# Install the controll
+sudo k0s install controller --single --enable-worker --cri-socket docker:unix:///var/run/docker.sock
+# Start k0s
+sudo k0s start
+#$ Copy the kube config over 
+sudo cp /var/lib/k0s/pki/admin.conf admin.conf
+
+
+# Before you run kubectl commands
+export KUBECONFIG=admin.conf
+kubectl apply -f mydeployment.yaml
+```
 
 ## Deploying xmrig to your cluster
-**Cloud Providers have strict policies around cryptomining. We strongly recommend not deploying
-to a cloud provider or you will risk account deactivation.**
+**Cloud Providers have strict policies around cryptomining. We strongly recommend not deploying to a cloud provider or you will risk account deactivation.**
 
 I built my xmrig docker image locally. I couldn't find a public one that looked reliable.
 
@@ -42,16 +59,9 @@ sudo bpftrace detectrandomx.bt
 px run -f detectrandomx.pxl
 ```
 ### Pixie UI 
-1. Copy over the script
-2. Open up web UI
-3. Navigate to the scratchpad script
-4. Paste script
-5. Run script
+Copy and paste the contents of `detectrandomx.pxl` into the [scratchpad](https://docs.px.dev/using-pixie/using-live-ui#write-your-own-pxl-scripts-use-the-scratch-pad).
 
 ## Caveats
-1. This script only works for x86 processors. There is probably a similar detection opportunity
-on ARM processors.
-2. The script was tested on Linux Kernel version 5.13. You'll have to update this for Linux kernel 
->=5.16 changed the structure.
-3. Minikube virtualizes the CPU so this script won't work inside Pixie running on Minikube. I
-used [k0s](https://k0sproject.io/). 
+1. This script only works for x86 processors. There is probably a similar detection opportunity on ARM processors.
+2. The script was tested on Linux Kernel version 5.13. You'll have to update this for Linux kernel >=5.16 changed the structure.
+3. Minikube virtualizes the CPU so this script won't work inside Pixie running on Minikube. I used [k0s](https://k0sproject.io/). 
