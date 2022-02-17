@@ -1,5 +1,5 @@
 # Detect Monero Miners with bpftrace
-This demo accompanies the [Detect Monero Miners with bpftrace blogpost](https://blog.px.dev/detecting-monero-miners).
+This demo accompanies the [Detect Monero Miners with bpftrace blogpost](https://blog.px.dev/detect-monero-miners).
 
 ## Prereqs
 1. (Optional) Deploy k0s
