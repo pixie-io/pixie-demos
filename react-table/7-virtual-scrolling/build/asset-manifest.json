@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/pixie-demos/react-table/7-virtual-scrolling/build/static/css/main.99c788ec.chunk.css",
+    "main.js": "/pixie-demos/react-table/7-virtual-scrolling/build/static/js/main.38b20cdf.chunk.js",
+    "main.js.map": "/pixie-demos/react-table/7-virtual-scrolling/build/static/js/main.38b20cdf.chunk.js.map",
+    "runtime-main.js": "/pixie-demos/react-table/7-virtual-scrolling/build/static/js/runtime-main.e6887f9c.js",
+    "runtime-main.js.map": "/pixie-demos/react-table/7-virtual-scrolling/build/static/js/runtime-main.e6887f9c.js.map",
+    "static/js/2.573341f5.chunk.js": "/pixie-demos/react-table/7-virtual-scrolling/build/static/js/2.573341f5.chunk.js",
+    "static/js/2.573341f5.chunk.js.map": "/pixie-demos/react-table/7-virtual-scrolling/build/static/js/2.573341f5.chunk.js.map",
+    "static/js/3.e7c438f0.chunk.js": "/pixie-demos/react-table/7-virtual-scrolling/build/static/js/3.e7c438f0.chunk.js",
+    "static/js/3.e7c438f0.chunk.js.map": "/pixie-demos/react-table/7-virtual-scrolling/build/static/js/3.e7c438f0.chunk.js.map",
+    "index.html": "/pixie-demos/react-table/7-virtual-scrolling/build/index.html",
+    "static/css/main.99c788ec.chunk.css.map": "/pixie-demos/react-table/7-virtual-scrolling/build/static/css/main.99c788ec.chunk.css.map",
+    "static/js/2.573341f5.chunk.js.LICENSE.txt": "/pixie-demos/react-table/7-virtual-scrolling/build/static/js/2.573341f5.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.e6887f9c.js",
+    "static/js/2.573341f5.chunk.js",
+    "static/css/main.99c788ec.chunk.css",
+    "static/js/main.38b20cdf.chunk.js"
+  ]
+}
