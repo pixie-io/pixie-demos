@@ -1,12 +1,12 @@
 import * as React from 'react';
 
-import { useStaticData } from './utils/useData.js';
+import { useStreamingData } from './utils/useData.js';
 import Table from './Table.js';
 
 import './App.css';
 
 function App() {
-  const data = useStaticData(10_000);
+  const data = useStreamingData();
   return (
     <main className="App">
       <Table data={data} />

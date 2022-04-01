@@ -61,3 +61,25 @@ export function useStaticData(numRows = 20) {
   }, [numRows]);
   return { columns, data };
 }
+
+export function useStreamingData(rowsPerBatch = 5, delay = 1000, maxBatches = 100) {
+  const [minTimestamp, setMinTimestamp] = React.useState(Date.now() - 1000 * 60 * 60 * 24 * 7);
+  const [batches, setBatches] = React.useState([]);
+
+  const addBatch = React.useCallback(() => {
+    if (batches.length >= maxBatches) return;
+    const batch = Array(rowsPerBatch).fill(0).map(
+      (_, i) => generateRow(minTimestamp + i * 1000, minTimestamp + i * 1999));
+    setBatches([...batches, batch]);
+    setMinTimestamp(minTimestamp + rowsPerBatch * 2000);
+  }, [batches, maxBatches, minTimestamp, rowsPerBatch]);
+
+  React.useEffect(() => {
+    const newTimer = global.setInterval(addBatch, delay);
+    return () => {
+      global.clearInterval(newTimer);
+    };
+  }, [delay, addBatch]);
+
+  return React.useMemo(() => ({ columns, data: batches.flat() }), [batches]);
+}

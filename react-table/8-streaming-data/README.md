@@ -9,4 +9,8 @@ Then we update these existing features to account for the data rapidly changing 
 
 How this was created:
 * Start with the result from [step 2](../7-virtual-scrolling/README.md)
-* ???
+* Modify `useData.js` and `App.js` to use data that adds a batch new rows every second, which shows several issues:
+  * Scroll position jump to the top every time a batch is added
+  * Virtual scrolling doesn't notice this until you scroll again
+  * Sorting and filtering both reset every time a batch comes in
+* ??? (next commit fixes these issues)
