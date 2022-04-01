@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import './useData.css';
+
 const TimestampCell = ({ value }) => (
   <span className='Cell-Timestamp'>
     <span>{new Date(value).toLocaleString()}</span>

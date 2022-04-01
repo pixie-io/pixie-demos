@@ -1,11 +1,33 @@
+.root {
+  flex: 1 1 auto;
+  max-height: 100%;
+
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: hidden;
+}
+
+.root > *:not(.fill) {
+  flex: 0 0 auto;
+}
+
+.fill {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
 .Table {
+  display: table;
   font-size: 1rem;
   text-align: left;
   border-collapse: collapse;
   width: 100%;
 }
 
-.Table td, .Table th {
+.Table .Row { display: table-row; }
+
+.Table .BodyCell, .Table .HeaderCell {
+  display: table-cell;
   line-height: 2em;
   padding: 0 0.75em;
   border: 1px rgba(255, 255, 255, 0.75) solid;
@@ -15,7 +37,7 @@
   min-width: 2rem;
 }
 
-.Table th {
+.Table .HeaderCell {
   max-height: 3.5em;
   padding: 0.75em 0.75em;
   border-bottom-width: 2px;
