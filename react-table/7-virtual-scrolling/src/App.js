@@ -6,7 +6,7 @@ import Table from './Table.js';
 import './App.css';
 
 function App() {
-  const data = useStaticData(100);
+  const data = useStaticData(10_000);
   return (
     <main className="App">
       <Table data={data} />
