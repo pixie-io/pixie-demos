@@ -67,12 +67,20 @@ export function useStreamingData(rowsPerBatch = 5, delay = 1000, maxBatches = 10
   const [batches, setBatches] = React.useState([]);
 
   const addBatch = React.useCallback(() => {
-    if (batches.length >= maxBatches) return;
+    // If we're at the limit, remove the oldest batch before adding a new one.
+    if (batches.length >= maxBatches) batches.shift();
+
     const batch = Array(rowsPerBatch).fill(0).map(
       (_, i) => generateRow(minTimestamp + i * 1000, minTimestamp + i * 1999));
     setBatches([...batches, batch]);
     setMinTimestamp(minTimestamp + rowsPerBatch * 2000);
   }, [batches, maxBatches, minTimestamp, rowsPerBatch]);
+
+  // Start with one batch already loaded
+  React.useEffect(() => {
+    addBatch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   React.useEffect(() => {
     const newTimer = global.setInterval(addBatch, delay);

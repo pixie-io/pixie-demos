@@ -57,3 +57,11 @@
 .ResizeHandleActive {
   opacity: 1;
 }
+
+.ViewportDetails {
+  flex: 0 1 auto;
+  font-size: 1rem;
+  text-align: right;
+  border-top: 1px white solid;
+  padding-top: 1em;
+}
