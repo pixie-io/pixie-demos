@@ -1,0 +1,17 @@
+.Cell-Timestamp {
+  font-family: monospace;
+  color: var(--white);
+}
+
+.Cell-Latency.bad { color: var(--deep-orange-400); }
+.Cell-Latency.weak { color: var(--yellow-400); }
+.Cell-Latency.good { color: var(--green-400); }
+
+.Cell-Endpoint {
+  font-family: monospace;
+}
+
+.Cell-StatusCode.range-200 { color: var(--green-400); }
+.Cell-StatusCode.range-300 { color: var(--cyan-400); }
+.Cell-StatusCode.range-400 { color: var(--orange-400); }
+.Cell-StatusCode.range-500 { color: var(--red-400); }
