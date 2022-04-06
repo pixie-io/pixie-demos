@@ -6,9 +6,8 @@ export default function Filter({ onChange }) {
   const [value, setValue] = React.useState('');
 
   const onChangeWrapper = React.useCallback((event) => {
-    const v = event.target.value.trim();
-    setValue(v);
-    onChange(v);
+    setValue(event.target.value);
+    onChange(event.target.value.trim());
   }, [onChange]);
 
   return (
