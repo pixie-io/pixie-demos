@@ -75,6 +75,11 @@ const Table = React.memo(({ data: { columns, data } }) => {
     setGlobalFilter
   } = reactTable;
 
+  const [latestFilter, setLatestFilter] = React.useState('');
+  React.useEffect(() => {
+    setGlobalFilter(latestFilter);
+  }, [setGlobalFilter, latestFilter, data]);
+
   const { width: scrollbarWidth } = useScrollbarSize();
 
   const [fillContainer, setFillContainer] = React.useState(null)
@@ -113,7 +118,7 @@ const Table = React.memo(({ data: { columns, data } }) => {
       <div className={styles.root}>
         <header>
           <ColumnSelector columns={allColumns} />
-          <Filter onChange={setGlobalFilter} />
+          <Filter onChange={setLatestFilter} />
         </header>
         <div className={styles.fill} ref={fillContainerRef}>
           <div {...getTableProps()} className={styles.Table}>
