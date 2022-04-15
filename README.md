@@ -47,7 +47,7 @@ Demo project to accompany the [Debugging with eBPF Part 3: Tracing SSL/TLS conne
 
 ## [otel-collector](https://github.com/pixie-io/pixie-demos/tree/main/otel-collector)
 
-Example deployment of a basic OpenTelemetry collector which ouputs the metrics it receives to its logs.
+Example deployment of a basic OpenTelemetry collector which outputs the metrics it receives to its logs.
 
 ## [react-table](https://github.com/pixie-io/pixie-demos/tree/main/react-table)
 

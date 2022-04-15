@@ -1,6 +1,6 @@
 # Deploying an OpenTelemetry Collector
 
-[OpenTelemetry Collectors](https://opentelemetry.io/docs/collector/) allows you to receive, process, and export telemetry data in a vendor-agnostic way. When configuring an OpenTelemetry Collector, you can specify how/where you should receive telemetry data, how that data should be processed, and how/where that data should be exported.
+[OpenTelemetry Collectors](https://opentelemetry.io/docs/collector/) allow you to receive, process, and export telemetry data in a vendor-agnostic way. When configuring an OpenTelemetry Collector, you can specify how/where you should receive telemetry data, how that data should be processed, and how/where that data should be exported.
 
 Our example OpenTelemetry Collector features a single Gateway cluster which receives data on the standard OpenTelemetry port (4317). This example collector outputs any data it receives to the logs.
 
