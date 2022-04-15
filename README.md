@@ -45,6 +45,10 @@ Use Pixie to estimate the cost of hosting your Kubernetes cluster.
 
 Demo project to accompany the [Debugging with eBPF Part 3: Tracing SSL/TLS connections](https://blog.px.dev/ebpf-openssl-tracing/) blog post. This is a basic example of how to trace the OpenSSL library using eBPF. This tracer uses BCC to deploy the eBPF probes.
 
+## [otel-collector](https://github.com/pixie-io/pixie-demos/tree/main/otel-collector)
+
+Example deployment of a basic OpenTelemetry collector which outputs the metrics it receives to its logs.
+
 ## [react-table](https://github.com/pixie-io/pixie-demos/tree/main/react-table)
 
 Demo project to accompany the [Tables are Hard, Part 2: Building a Simple Data Table in React](https://blog.px.dev/tables-are-hard-2) blog post. Interactive demo: [github.io](https://pixie-io.github.io/pixie-demos/react-table).
