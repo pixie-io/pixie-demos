@@ -65,6 +65,10 @@ Demo project to accompany the [Slack Alerts using the Pixie API](https://docs.pi
 
 Demo project to accompany the [Detect SQL injections with Pixie](https://blog.px.dev/sql-injection/) blog post. This demo shows how to use Pixie to detect SQL injections on a Kubernetes application.
 
+## [data-exfiltration-demo](https://github.com/pixie-io/pixie-demos/tree/main/data-exfiltration-demo)
+
+This demo shows how to use Pixie to understand and detect data exfiltration from kubernetes clusters. Blog post coming soon.
+
 # Have questions? Need help?
 
 Please reach out on our Pixie Community [Slack](https://slackin.px.dev/) or file a GitHub issue.
