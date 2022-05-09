@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: malicious-pii-egress-https
+  namespace: px-data-exfiltration-demo
+spec:
+  containers:
+  - name: malicious-pii-egress
+    image: gcr.io/pixie-oss/pixie-dev/demo/data-exfiltration:latest
+    env:
+    - name: EGRESS_URL
+      value: https://$EGRESS_URL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: malicious-pii-egress-http
+  namespace: px-data-exfiltration-demo
+spec:
+  containers:
+  - name: malicious-pii-egress
+    image: gcr.io/pixie-oss/pixie-dev/demo/data-exfiltration:latest
+    env:
+    - name: EGRESS_URL
+      value: http://$EGRESS_URL
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: legitimate-stripe-egress
+  namespace: px-data-exfiltration-demo
+spec:
+  containers:
+  - name: legitimate-stripe-egress
+    image: gcr.io/pixie-oss/pixie-dev/demo/data-exfiltration:latest
+    env:
+    - name: RUN_LEGITIMATE_EGRESS
+      value: 'true'
+    - name: STRIPE_TEST_API_KEY
+      value: "$STRIPE_TEST_API_KEY"
