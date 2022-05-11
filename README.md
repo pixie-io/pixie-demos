@@ -9,6 +9,7 @@ This demo shows how to use Pixie to perform canary analysis as part of a Argo Ro
 This demo project shows how to use Pixie to autoscale the number of pods in your Kubernetes deployment based on request throughput, without any code changes. [Horizontal Pod Autoscaling with Custom Metrics in Kubernetes](https://blog.px.dev/autoscaling-custom-k8s-metric) is the accompanying blog post.
 
 ## [detect-monero-demo](https://github.com/pixie-io/pixie-demos/tree/main/detect-monero-demo)
+
 Demo deployment to accompany the [Detect Monero Miners with bpftrace](https://blog.px.dev/detect-monero-miners) blog post. Demo demonstrates how to use bpftrace and/or Pixie to detect Monero miners running in a Kubernetes cluster.
 Includes instructions to deploy a Monero miner for testing purposes.
 
@@ -47,7 +48,7 @@ Demo project to accompany the [Debugging with eBPF Part 3: Tracing SSL/TLS conne
 
 ## [otel-collector](https://github.com/pixie-io/pixie-demos/tree/main/otel-collector)
 
-Example deployment of a basic OpenTelemetry collector which outputs the metrics it receives to its logs.
+Demo OpenTelemetry collector to accompany the [Export OpenTelemetry Data](https://docs.px.dev/tutorials/integrations/otel/) tutorial. This example collector outputs any data it receives to its logs.
 
 ## [react-table](https://github.com/pixie-io/pixie-demos/tree/main/react-table)
 
