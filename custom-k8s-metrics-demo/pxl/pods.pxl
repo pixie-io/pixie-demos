@@ -1,0 +1,78 @@
+import px
+
+# Use this scratch pad to write and run one-off scripts.
+# If you switch to another script, refresh, or close this browser tab, this script will disappear.
+
+window_s = 10
+window_ns = px.DurationNanos(window_s * 1000*1000*1000)
+
+def get_pods_over_time(start_time: str, service: str):
+    df = px.DataFrame(table='process_stats', start_time=start_time)
+    df.timestamp = px.bin(df.time_, window_ns)
+    df = df[df.ctx['service'] == service]
+    df.pod = df.ctx['pod']
+
+    df = df.groupby(['timestamp', 'pod']).agg()
+    df = df.groupby('timestamp').agg(pod_count=('pod', px.count))
+    df.time_ = df.timestamp
+    return df
+
+def get_pods_cpu(start_time: str, service: str):
+    df = px.DataFrame(table='process_stats', start_time=start_time)
+    df = df[df.ctx['service'] == service]
+    df.pod = df.ctx['pod']    
+    df.timestamp = px.bin(df.time_, window_ns)
+    df.container = df.ctx['container_name']
+
+    # First calculate CPU usage by process (UPID) in each k8s_object
+    # over all windows.
+    df = df.groupby(['pod', 'container', 'upid', 'timestamp']).agg(
+        # The fields below are counters, so we take the min and the max to subtract them.
+        cpu_utime_ns_max=('cpu_utime_ns', px.max),
+        cpu_utime_ns_min=('cpu_utime_ns', px.min),
+        cpu_ktime_ns_max=('cpu_ktime_ns', px.max),
+        cpu_ktime_ns_min=('cpu_ktime_ns', px.min)
+    )
+
+    # Next calculate cpu usage and memory stats per window.
+    df.cpu_utime_ns = df.cpu_utime_ns_max - df.cpu_utime_ns_min
+    df.cpu_ktime_ns = df.cpu_ktime_ns_max - df.cpu_ktime_ns_min
+
+    # Then aggregate process individual process metrics.
+    df = df.groupby(['pod', 'timestamp']).agg(
+        cpu_ktime_ns=('cpu_ktime_ns', px.sum),
+        cpu_utime_ns=('cpu_utime_ns', px.sum)
+    )
+
+    # Finally, calculate total (kernel + user time)  percentage used over window.
+    df.cpu_usage = (df.cpu_ktime_ns + df.cpu_utime_ns) / window_ns
+
+    df = df.groupby('timestamp').agg(
+        min_pod_cpu_usage=('cpu_usage', px.min),
+        mean_pod_cpu_usage=('cpu_usage', px.mean),
+        max_pod_cpu_usage=('cpu_usage', px.max)
+    )
+    df.min_pod_cpu_usage = px.Percent(df.min_pod_cpu_usage)
+    df.mean_pod_cpu_usage = px.Percent(df.mean_pod_cpu_usage)
+    df.max_pod_cpu_usage = px.Percent(df.max_pod_cpu_usage)
+    df.time_ = df.timestamp
+    return df
+
+
+def get_requests(start_time: str, service: str):
+    df = px.DataFrame(table='http_events', start_time=start_time)
+    df.timestamp = px.bin(df.time_, window_ns)
+    df = df[df.ctx['service'] == service]
+    df.failure = df.resp_status >= 400
+    df = df.groupby('timestamp').agg(
+        errors=('failure', px.sum),
+        requests=('timestamp', px.count),
+        quantiles=('latency', px.quantiles)
+    )
+    df.requests_per_s = df.requests / window_s
+    df.errors_per_s = df.errors / window_s
+    df.latency_p50 = px.DurationNanos(px.floor(px.pluck_float64(df.quantiles, 'p50')))
+    df.latency_p90 = px.DurationNanos(px.floor(px.pluck_float64(df.quantiles, 'p90')))
+    df.latency_p99 = px.DurationNanos(px.floor(px.pluck_float64(df.quantiles, 'p99')))
+    df.time_ = df.timestamp    
+    return df

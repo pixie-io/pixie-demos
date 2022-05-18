@@ -8,6 +8,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: echo-service
+  # Update minReplicas and maxReplicas if you want to change the
+  # allowed number of pods in the deployment.
   minReplicas: 1
   maxReplicas: 10
   metrics:
@@ -18,6 +20,21 @@ spec:
         target:
           type: AverageValue
           averageValue: 20
+  behavior:
+    # Fill this in if you want to customize the stabilization
+    # behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Pods
+        value: Min
+        periodSeconds: 15
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Pods
+        value: Max
+        periodSeconds: 15
 ---
 apiVersion: apps/v1
 kind: Deployment
