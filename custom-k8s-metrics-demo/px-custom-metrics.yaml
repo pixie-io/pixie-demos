@@ -53,7 +53,7 @@ spec:
       serviceAccountName: px-custom-metrics-apiserver
       containers:
       - name: px-custom-metrics-apiserver
-        image: gcr.io/pixie-oss/pixie-dev/demo/custom-k8s-metrics-api
+        image: gcr.io/pixie-oss/pixie-dev/demo/custom-k8s-metrics-api:0.0.1
         args:
         - /adapter
         - --secure-port=6443

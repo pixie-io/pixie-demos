@@ -1,0 +1,184 @@
+{
+    "variables": [
+        {
+            "name": "start_time",
+            "type": "PX_STRING",
+            "description": "The relative start time of the window. Current time is assumed to be now",
+            "defaultValue": "-5m"
+        },
+        {
+            "name": "service",
+            "type": "PX_SERVICE",
+            "description": "The service for which to display metrics",
+            "defaultValue": "default/echo-service"
+        }
+    ],
+    "globalFuncs": [
+        {
+            "outputName": "num_pods",
+            "func": {
+                "name": "get_pods_over_time",
+                "args": [
+                    {
+                        "name": "start_time",
+                        "variable": "start_time"
+                    },
+                    {
+                        "name": "service",
+                        "variable": "service"
+                    }
+                ]
+            }
+        },
+        {
+            "outputName": "pods_cpu",
+            "func": {
+                "name": "get_pods_cpu",
+                "args": [
+                    {
+                        "name": "start_time",
+                        "variable": "start_time"
+                    },
+                    {
+                        "name": "service",
+                        "variable": "service"
+                    }
+                ]
+            }
+        },
+        {
+            "outputName": "num_requests",
+            "func": {
+                "name": "get_requests",
+                "args": [
+                    {
+                        "name": "start_time",
+                        "variable": "start_time"
+                    },
+                    {
+                        "name": "service",
+                        "variable": "service"
+                    }
+                ]
+            }
+        }
+    ],
+    "widgets": [
+        {
+            "name": "Requests per second (across service)",
+            "globalFuncOutputName": "num_requests",
+            "displaySpec": {
+                "@type": "types.px.dev/px.vispb.TimeseriesChart",
+                "timeseries": [
+                    {
+                        "value": "requests_per_s",
+                        "mode": "MODE_LINE"
+                    },
+                    {
+                        "value": "errors_per_s",
+                        "mode": "MODE_LINE"
+                    }
+                ],
+                "title": "",
+                "yAxis": {
+                    "label": "RPS"
+                },
+                "xAxis": null
+            },
+            "position": {
+                "x": 0,
+                "y": 0,
+                "w": 6,
+                "h": 3
+            }
+        },
+        {
+            "name": "HTTP Latency",
+            "globalFuncOutputName": "num_requests",
+            "displaySpec": {
+                "@type": "types.px.dev/px.vispb.TimeseriesChart",
+                "timeseries": [
+                    {
+                        "value": "latency_p50",
+                        "mode": "MODE_LINE"
+                    },
+                    {
+                        "value": "latency_p90",
+                        "mode": "MODE_LINE"
+                    },
+                    {
+                        "value": "latency_p99",
+                        "mode": "MODE_LINE"
+                    }
+                ],
+                "title": "",
+                "yAxis": {
+                    "label": "Latency"
+                },
+                "xAxis": null
+            },
+            "position": {
+                "x": 6,
+                "y": 0,
+                "w": 6,
+                "h": 3
+            }
+        },
+        {
+            "name": "CPU Usage by Pod",
+            "globalFuncOutputName": "pods_cpu",
+            "displaySpec": {
+                "@type": "types.px.dev/px.vispb.TimeseriesChart",
+                "timeseries": [
+                    {
+                        "value": "min_pod_cpu_usage",
+                        "mode": "MODE_LINE"
+                    },
+                    {
+                        "value": "mean_pod_cpu_usage",
+                        "mode": "MODE_LINE"
+                    },
+                    {
+                        "value": "max_pod_cpu_usage",
+                        "mode": "MODE_LINE"
+                    }
+                ],
+                "title": "",
+                "yAxis": {
+                    "label": "CPU Usage"
+                },
+                "xAxis": null
+            },
+            "position": {
+                "x": 0,
+                "y": 3,
+                "w": 6,
+                "h": 3
+            }
+        },
+        {
+            "name": "Number of Pods for Service",
+            "position": {
+                "x": 6,
+                "y": 3,
+                "w": 6,
+                "h": 3
+            },
+            "globalFuncOutputName": "num_pods",
+            "displaySpec": {
+                "@type": "types.px.dev/px.vispb.TimeseriesChart",
+                "timeseries": [
+                    {
+                        "value": "pod_count",
+                        "mode": "MODE_LINE"
+                    }
+                ],
+                "title": "",
+                "yAxis": {
+                    "label": "Number of pods"
+                },
+                "xAxis": null
+            }
+        }
+    ]
+}

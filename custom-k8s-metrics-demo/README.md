@@ -85,6 +85,16 @@ hey -n 10000  http://<EXTERNAL IP>/ping
 kubectl get pods --selector=name=echo-service --watch
 ```
 
+6. Test out different endpoints in the echo-service.
+
+* `/ping` will echo back the body of the request
+* `/expensive` will do the same as `/ping`, but add an expensive-ish calculation to utilize CPU
+* `/slow-contention` will add artificial delay in responses for queued requests in order to simulate a non-CPU bottleneck such as another service
+* `/expensive-limit-concurrent` will make an expensive computation but return errors once a certain number of concurrent requests occur, in order to simulate a request queue with a limit.
+
+These requests can be tested in conjunction with the different metrics specified in `pixie-http-metric-provider.go`. Just edit the metric name in the HorizontalPodAutoscaler from the default of `px-http-requests-per-second`.
+
+
 ## Development
 
 You can use the pre-built images in the directions described above if you don't need to make any changes to the metrics provider code. However, if you want to extend or develop upon this example, here are instructions for building and deploying a local version of the metrics server.
