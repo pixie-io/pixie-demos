@@ -44,7 +44,9 @@ kubectl create namespace px-metrics
 kubectl -n px-metrics create secret generic px-credentials --from-literal=px-api-key=<YOUR API KEY VALUE HERE> --from-literal=px-cluster-id=<YOUR CLUSTER ID VALUE HERE>
 ```
 
-3. Install the Pixie metrics server onto your cluster with:
+3. [Optional] If using self-hosted Pixie Cloud, update the `PX_CLOUD_ADDR` in `px-metrics.yaml`.
+
+4. Create the Pixie metrics provider in your Kubernetes cluster in the `px-metrics` namespace:
 
 ```
 kubectl apply -f px-metrics.yaml
