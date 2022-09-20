@@ -9,7 +9,7 @@ spec:
     - name: canary-pod-hash
   metrics:
   - name: webmetric
-    successCondition: result <= 0.1
+    successCondition: result <= 0.05
     interval: 30s
     initialDelay: 30s
     provider:

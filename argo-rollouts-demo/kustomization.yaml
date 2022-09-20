@@ -5,6 +5,4 @@ resources:
 - canary/rollout-with-analysis.yaml
 - canary/pixie-analysis.yaml
 - canary/canary-service.yaml
-- canary/canary-ingress.yaml
 - canary/canary-preview-service.yaml
-- canary/canary-preview-ingress.yaml

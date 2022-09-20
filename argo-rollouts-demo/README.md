@@ -178,7 +178,7 @@ The rollout fails and the Rollout controller automatically rolls the deployment 
 
 ```
 kubectl get analysisrun
-kubectl get <ANALYSISRUN_NAME> -o yaml
+kubectl get analysisrun <ANALYSISRUN_NAME> -o yaml
 ```
 
 5. Let's inspect the results of the analysis run:

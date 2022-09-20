@@ -3,7 +3,7 @@ kind: Rollout
 metadata:
   name: canary-demo
 spec:
-  replicas: 5
+  replicas: 3
   revisionHistoryLimit: 1
   selector:
     matchLabels:
@@ -26,12 +26,12 @@ spec:
               podTemplateHashValue: Latest
       canaryService: canary-demo-preview
       steps:
-      # First, we only redirect 50% of our application traffic to the canary. This number is way to
+      # First, we only redirect 30% of our application traffic to the canary. This number is way to
       # large of a value for real world canary testing, but is used to illustrate the method.
-      - setWeight: 50
+      - setWeight: 33
       - pause: {duration: 60s}
       # Increase traffic gradually
-      - setWeight: 80
+      - setWeight: 66
       - pause: {duration: 60s}
       # No more steps here means that the canary succeeded and will be automatically promoted to stable.
       # If you want to pause the canary here and promote it manually, just add pause{} step with no duration.
