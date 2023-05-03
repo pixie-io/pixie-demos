@@ -1,5 +1,5 @@
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: echo-service-hpa
@@ -27,13 +27,13 @@ spec:
       stabilizationWindowSeconds: 0
       policies:
       - type: Pods
-        value: Min
+        value: 1
         periodSeconds: 15
     scaleUp:
       stabilizationWindowSeconds: 0
       policies:
       - type: Pods
-        value: Max
+        value: 10
         periodSeconds: 15
 ---
 apiVersion: apps/v1
